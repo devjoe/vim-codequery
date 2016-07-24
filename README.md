@@ -1,16 +1,21 @@
 # vim-codequery
 
-Build on top of the useful tool [CodeQuery](https://github.com/ruben2020/codequery) created by ruben2020, and this Vim plugin aims at providing three primary functions to help you to:
+This plugin is build on top of the useful tool [CodeQuery](https://github.com/ruben2020/codequery) created by ruben2020, and aims at providing three primary functions to help you to:
   
-* Do CodeQuery-liked queries. (TBD)
-* Manage your database. (TBD)
-* "Know" your code instantly. (TBD)
+1. Do CodeQuery-liked queries. (TBD)
+2. Manage your database. (TBD)
+3. "Know" your code instantly. (TBD)
   
 ## Status
 
-**This project is under development and will be release in August.**  
-(Completeness: 1%)
-  
+**This project is under development.**  
+Completeness: 1%
+
+Schedule:
+* July: part1
+* Mid-August: part2
+* September: part3
+
 ## Demo
 
 ## Usage
