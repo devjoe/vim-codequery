@@ -25,6 +25,20 @@ endfunction
 " Helpers
 
 
+let s:subcmd_map = { "Symbol"          : 1,
+                   \ "Definition"      : 2,
+                   \ "Caller"          : 6,
+                   \ "Callee"          : 7,
+                   \ "Call"            : 8,
+                   \ "Class"           : 3,
+                   \ "Member"          : 9,
+                   \ "Parent"          : 12,
+                   \ "Child"           : 11,
+                   \ "FunctionList"    : 13,
+                   \ "FileImporter"    : 4 ,
+                   \ "DefinitionGroup" : 20 }
+
+
 function! s:is_valid_word(word)
     return strlen(matchstr(a:word, '\v[a-z|A-Z|0-9|_]+')) > 0
 endfunction
@@ -36,18 +50,19 @@ endfunction
 
 
 function! s:get_valid_input_word(args)
+    let args = deepcopy(a:args)
     if s:fuzzy
-        call remove(a:args, "-f")
+        call remove(args, index(args, "-f"))
     endif
     if s:append_to_quickfix
-        call remove(a:args, "-a")
+        call remove(args, index(args, "-a"))
     endif
 
-    if len(a:args) <= 1
+    if len(args) <= 1
         return ""
     endif
 
-    return s:is_valid_word(a:args[1]) ? a:args[1] : ""
+    return s:is_valid_word(args[1]) ? args[1] : ""
 endfunction
 
 
@@ -59,18 +74,20 @@ function! s:do_grep(word)
 
     let fuzzy_option = s:fuzzy ? "-f" : "-e"
     let pipeline_script_option = ' \| cut -f 2,3'
-    let grepcmd = s:append_to_quickfix ? "grepadd!" : "grep!"
 
-    if s:querytype == 4
-        " Filename Only Query
-    elseif s:querytype == 20
-        " Custom Query
-    else
-        let grepformat = "%f:%l%m"
+    let grepformat = "%f:%l%m"
+    let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
+                \ a:word . ' ' . fuzzy_option . pipeline_script_option
+
+    if s:querytype == s:subcmd_map["FileImporter"]
         let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
-                    \ a:word . ' ' . fuzzy_option . pipeline_script_option
+                    \ a:word . ' ' . fuzzy_option
+    elseif s:querytype == s:subcmd_map["DefinitionGroup"]
+        echom "Not Implement !"
+        return
     endif
 
+    let grepcmd = s:append_to_quickfix ? "grepadd!" : "grep!"
     let l:grepprg_bak    = &l:grepprg
     let l:grepformat_bak = &grepformat
     try
@@ -87,19 +104,7 @@ endfunction
 
 
 function! s:set_options(args)
-    let cmd_map = { "Symbol"          : 1,
-                  \ "Definition"      : 2,
-                  \ "Caller"          : 6,
-                  \ "Callee"          : 7,
-                  \ "Call"            : 8,
-                  \ "Class"           : 3,
-                  \ "Member"          : 9,
-                  \ "Parent"          : 12,
-                  \ "Child"           : 11,
-                  \ "FunctionList"    : 13,
-                  \ "FileImporter"    : 4 ,
-                  \ "DefinitionGroup" : 20 }
-    let s:querytype = get(cmd_map, a:args[0])
+    let s:querytype = get(s:subcmd_map, a:args[0])
 
     if index(a:args, "-f") != -1
         let s:fuzzy = 1
@@ -120,6 +125,7 @@ endfunction
 " Entries
 
 
+" options
 let s:fuzzy = 0
 let s:append_to_quickfix = 0
 let s:querytype = 1
@@ -143,7 +149,11 @@ function! s:run_codequery(args)
         call s:set_options(args)
         let iword = s:get_valid_input_word(args)
 
-        if empty(iword) && !empty(cword)
+        if empty(iword) && s:querytype == s:subcmd_map["FunctionList"]
+            let iword = expand("%")
+        elseif empty(iword) && s:querytype == s:subcmd_map["FileImporter"]
+            let iword = expand("%:r")
+        elseif empty(iword) && !empty(cword)
             let iword = cword
         elseif empty(iword)
             echom "Invalid Args: " . a:args
@@ -162,4 +172,4 @@ endfunction
 " Debugging
 
 
-nnoremap  <leader>c :source %<CR>:CodeQuery<CR>
+"nnoremap  <leader>c :source %<CR>:CodeQuery<CR>
