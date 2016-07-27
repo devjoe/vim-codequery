@@ -34,10 +34,18 @@ endfunction
 
 
 function! s:get_valid_input_word(args)
-    if len(a:args) == 0
+    if s:fuzzy
+        call remove(a:args, "-f")
+    endif
+    if s:append_to_quickfix
+        call remove(a:args, "-a")
+    endif
+
+    if len(a:args) <= 1
         return ""
     endif
-    return s:is_valid_word(a:args[0]) ? a:args[0] : ""
+
+    return s:is_valid_word(a:args[1]) ? a:args[1] : ""
 endfunction
 
 
@@ -63,16 +71,13 @@ function! s:do_grep(word)
 endfunction
 
 
-function! s:set_input_options(args)
+function! s:set_options(args)
     if index(a:args, "-f") != -1
         let s:fuzzy = 1
-        call remove(a:args, "-f")
     endif
     if index(a:args, "-a") != -1
         let s:append_to_quickfix = 1
-        call remove(a:args, "-a")
     endif
-    return a:args
 endfunction
 
 
@@ -93,13 +98,17 @@ function! s:run_codequery(args)
         call s:do_grep(cword)
 
     elseif index(s:subcommands, args[0]) != -1
-        let cleaned_args = s:set_input_options(args[1:])
-        let iword = s:get_valid_input_word(cleaned_args)
+        call s:set_options(args)
+        let iword = s:get_valid_input_word(args)
 
-        if iword == ""
+        if empty(iword) && !empty(cword)
+            let iword = cword
+        elseif empty(iword)
             echom "Invalid Args: " . a:args
             return
         endif
+
+        call s:do_grep(iword)
 
         echo "Normal Case"
 
