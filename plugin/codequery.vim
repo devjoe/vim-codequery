@@ -116,22 +116,16 @@ function! s:set_options(args)
 endfunction
 
 
-function! s:set_querytype_by_subcommand(subcommand)
-endfunction
-
-
 
 " =============================================================================
 " Entries
 
 
-" options
-let s:fuzzy = 0
-let s:append_to_quickfix = 0
-let s:querytype = 1
-
-
 function! s:run_codequery(args)
+    let s:fuzzy = 0
+    let s:append_to_quickfix = 0
+    let s:querytype = 1
+
     let args = split(a:args, " ")
     let args_num = len(args)
     let cword = s:get_valid_cursor_word()
@@ -172,4 +166,4 @@ endfunction
 " Debugging
 
 
-"nnoremap  <leader>c :source %<CR>:CodeQuery<CR>
+"nnoremap <leader>c :CodeQuery 
