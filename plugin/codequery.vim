@@ -85,7 +85,8 @@ function! s:do_grep(word)
                     \ a:word . ' ' . fuzzy_option
 
     elseif s:querytype == s:subcmd_map["Callee"] ||
-         \ s:querytype == s:subcmd_map["Caller"]
+         \ s:querytype == s:subcmd_map["Caller"] ||
+         \ s:querytype == s:subcmd_map["Member"]
 
         let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
             \ a:word . ' ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
