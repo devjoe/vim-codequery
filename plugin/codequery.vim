@@ -80,8 +80,16 @@ function! s:do_grep(word)
                 \ a:word . ' ' . fuzzy_option . pipeline_script_option
 
     if s:querytype == s:subcmd_map["FileImporter"]
+
         let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
                     \ a:word . ' ' . fuzzy_option
+
+    elseif s:querytype == s:subcmd_map["Callee"] ||
+         \ s:querytype == s:subcmd_map["Caller"]
+
+        let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
+            \ a:word . ' ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
+
     elseif s:querytype == s:subcmd_map["DefinitionGroup"]
         echom "Not Implement !"
         return
