@@ -22,25 +22,25 @@ Completeness: 40%
 ## Demo
 
 #### Search Symbol
-![](https://dl.dropboxusercontent.com/u/7414946/github/symbol.gif)
+![](https://dl.dropboxusercontent.com/u/7414946/github/symbol-c.gif)
 
 #### Search Definition (+ fuzzy option)
-![](https://dl.dropboxusercontent.com/u/7414946/github/definition.gif)
+![](https://dl.dropboxusercontent.com/u/7414946/github/def-c.gif)
 
 #### Search Call/Caller/Callee
-![](https://dl.dropboxusercontent.com/u/7414946/github/call.gif)
+![](https://dl.dropboxusercontent.com/u/7414946/github/call-c.gif)
 
 #### Search Parent/Children
-![](https://dl.dropboxusercontent.com/u/7414946/github/pc.gif)
+![](https://dl.dropboxusercontent.com/u/7414946/github/pc-c.gif)
 
 #### Search Class/Member
-![](https://dl.dropboxusercontent.com/u/7414946/github/cm.gif)
+![](https://dl.dropboxusercontent.com/u/7414946/github/cm-c.gif)
 
 #### Search FileImporter
-![](https://dl.dropboxusercontent.com/u/7414946/github/fi.gif)
+![](https://dl.dropboxusercontent.com/u/7414946/github/fi-c.gif)
 
 #### Search FunctionList
-![](https://dl.dropboxusercontent.com/u/7414946/github/fl.gif)
+![](https://dl.dropboxusercontent.com/u/7414946/github/fl-c.gif)
 
 #### [Not Implemented] Search DefinitionGroup
 
