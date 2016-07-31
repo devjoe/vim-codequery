@@ -39,6 +39,38 @@ let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'DefinitionGroup' : 20 }
 
 
+function! s:find_db_path()
+    if &filetype ==# 'python'
+        echom 'good ~ it is python !'
+    else
+        echom 'not python ~ bye bye ~'
+        return
+    endif
+
+    let db_name = &filetype . '.db'
+    let lookup_path = findfile(expand('%:h') . '/' . db_name, '.')
+
+    if !empty(lookup_path)
+        echom 'found DB in ' . lookup_path
+        return lookup_path
+    endif
+    
+endfunction
+
+
+function! s:set_db()
+    let path = s:find_db_path()
+    if empty(path)
+        echom 'Can not find DB'
+        return 0
+    else
+        let s:db_path = path
+        echom 'Get DB ~ Oh Ya ~'
+        return 1
+    endif
+endfunction
+
+
 function! s:is_valid_word(word)
     return strlen(matchstr(a:word, '\v[a-z|A-Z|0-9|_]+')) > 0
 endfunction
@@ -76,19 +108,19 @@ function! s:do_grep(word)
     let pipeline_script_option = ' \| cut -f 2,3'
 
     let grepformat = '%f:%l%m'
-    let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
+    let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
                 \ a:word . ' ' . fuzzy_option . pipeline_script_option
 
     if s:querytype == s:subcmd_map['FileImporter']
 
-        let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
+        let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
                     \ a:word . ' ' . fuzzy_option
 
     elseif s:querytype == s:subcmd_map['Callee'] ||
          \ s:querytype == s:subcmd_map['Caller'] ||
          \ s:querytype == s:subcmd_map['Member']
 
-        let grepprg = 'cqsearch -s myproject.db -p ' . s:querytype . ' -t ' .
+        let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
             \ a:word . ' ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
 
     elseif s:querytype == s:subcmd_map['DefinitionGroup']
@@ -131,9 +163,13 @@ endfunction
 
 
 function! s:run_codequery(args)
+    " do init
     let s:fuzzy = 0
     let s:append_to_quickfix = 0
     let s:querytype = 1
+    let s:db_path = ''
+    call s:set_db()
+
 
     let args = split(a:args, ' ')
     let args_num = len(args)
