@@ -71,7 +71,6 @@ function! s:find_db_path()
             endif
         endif
     endif
-    
 endfunction
 
 
@@ -179,7 +178,6 @@ endfunction
 
 
 function! s:run_codequery(args)
-    " do init
     let s:fuzzy = 0
     let s:append_to_quickfix = 0
     let s:querytype = 1
@@ -188,21 +186,14 @@ function! s:run_codequery(args)
         return
     endif
 
-
     let args = split(a:args, ' ')
     let args_num = len(args)
     let cword = s:get_valid_cursor_word()
 
     if args_num == 0
-        " Example:
-        " :CodeQuery
         call s:do_grep(cword)
 
     elseif index(s:subcommands, args[0]) != -1
-        " Examples:
-        " :CodeQuery Symbol
-        " :CodeQuery Symbol -f -a
-        " :CodeQuery Symbol search_term -f -a
         call s:set_options(args)
         let iword = s:get_valid_input_word(args)
 
@@ -229,4 +220,4 @@ endfunction
 " Debugging
 
 
-"nnoremap <leader>c :CodeQuery 
+"nnoremap <leader>c :CodeQuery<CR> 
