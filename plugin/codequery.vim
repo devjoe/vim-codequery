@@ -40,10 +40,10 @@ let s:subcmd_map = { 'Symbol'          : 1,
 
 
 function! s:find_db_path()
-    if &filetype ==# 'python'
-        echom 'good ~ it is python !'
-    else
-        echom 'not python ~ bye bye ~'
+    let supported_filetypes =
+        \ ['python', 'javascript', 'go', 'ruby', 'java', 'c', 'cpp']
+    if index(supported_filetypes, &filetype) == -1
+        echom 'Not Supported Filetype: ' . &filetype
         return
     endif
 
@@ -51,8 +51,25 @@ function! s:find_db_path()
     let lookup_path = findfile(expand('%:h') . '/' . db_name, '.')
 
     if !empty(lookup_path)
-        echom 'found DB in ' . lookup_path
+        lcd %:h
         return lookup_path
+    endif
+
+    lcd %:h
+    let git_root_dir = systemlist('git rev-parse --show-toplevel')[0]
+    if !v:shell_error
+        let lookup_path = findfile(git_root_dir . '/' . db_name, '.')
+        if !empty(lookup_path)
+            execute 'lcd ' . git_root_dir
+            return lookup_path
+        else
+            let lookup_path = findfile(git_root_dir . '/.git/codequery/' .
+                                        \ db_name, '.')
+            if !empty(lookup_path)
+                execute 'lcd ' . git_root_dir
+                return lookup_path
+            endif
+        endif
     endif
     
 endfunction
@@ -61,13 +78,12 @@ endfunction
 function! s:set_db()
     let path = s:find_db_path()
     if empty(path)
-        echom 'Can not find DB'
+        echom 'CodeQuery DB Not Found'
         return 0
-    else
-        let s:db_path = path
-        echom 'Get DB ~ Oh Ya ~'
-        return 1
     endif
+
+    let s:db_path = path
+    return 1
 endfunction
 
 
@@ -168,7 +184,9 @@ function! s:run_codequery(args)
     let s:append_to_quickfix = 0
     let s:querytype = 1
     let s:db_path = ''
-    call s:set_db()
+    if !s:set_db()
+        return
+    endif
 
 
     let args = split(a:args, ' ')
