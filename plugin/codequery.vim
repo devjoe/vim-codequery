@@ -6,6 +6,7 @@
 
 
 command! -nargs=* -complete=customlist,s:complete_function CodeQuery call s:run_codequery(<q-args>)
+command! -nargs=0 CodeQueryMakeDB call s:make_codequery_db()
 
 let s:subcommands = [ 'Symbol',
                     \ 'Definition', 'DefinitionGroup',
@@ -39,14 +40,18 @@ let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'DefinitionGroup' : 20 }
 
 
-function! s:find_db_path()
+function! s:check_filetype()
     let supported_filetypes =
         \ ['python', 'javascript', 'go', 'ruby', 'java', 'c', 'cpp']
     if index(supported_filetypes, &filetype) == -1
-        echom 'Not Supported Filetype: ' . &filetype
-        return
+        return 0
     endif
+    return 1
+endfunction
 
+
+" `lcd` brings side effect !! 
+function! s:find_db_path()
     let db_name = &filetype . '.db'
     let lookup_path = findfile(expand('%:h') . '/' . db_name, '.')
 
@@ -178,6 +183,11 @@ endfunction
 
 
 function! s:run_codequery(args)
+    if !s:check_filetype()
+        echom 'Not Supported Filetype: ' . &filetype
+        return
+    endif
+
     let s:fuzzy = 0
     let s:append_to_quickfix = 0
     let s:querytype = 1
@@ -214,6 +224,42 @@ function! s:run_codequery(args)
     endif
 endfunction
 
+
+function! s:make_codequery_db()
+    if !s:check_filetype()
+        echom 'Not Supported Filetype: ' . &filetype
+        return
+    endif
+
+    let db_path = s:find_db_path()
+    if empty(db_path)
+        let db_path = &filetype . '.db'
+    endif
+
+    " TODO: refactor later ---------------
+    let cscope_file = &filetype . '_cscope.files'
+    let cscopeout_file = &filetype . '_cscope.out'
+    let tags_file = &filetype . '_tags'
+
+    let find_cmd = 'find . -iname "*.py" > ' . cscope_file
+    let pycscope_cmd = 'pycscope -f "' . cscopeout_file . '" -i ' . cscope_file
+    let ctags_cmd = 'ctags --fields=+i -n -R -f "' .
+                    \ tags_file . '" -L ' . cscope_file
+    let cqmakedb_cmd = 'cqmakedb -s "' . db_path . '" -c ' . cscopeout_file .
+                       \ ' -t ' . tags_file . ' -p'
+    let shell_cmd = find_cmd . ' && ' .
+                  \ pycscope_cmd . ' && ' .
+                  \ ctags_cmd . ' && ' .
+                  \ cqmakedb_cmd
+    " ------------------------------------
+
+    if exists(':Start')
+        execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
+    else
+        silent execute '!' . shell_cmd
+        redraw!
+    endif
+endfunction
 
 
 " =============================================================================
