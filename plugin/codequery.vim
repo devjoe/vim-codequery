@@ -156,7 +156,14 @@ function! s:do_grep(word)
         let &l:grepprg = grepprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
         silent execute grepcmd
         redraw!
-        copen
+
+        let results = getqflist()
+        if !empty(results)
+            echo 'Found ' . len(results) . ' results'
+            copen
+        else
+            echo 'Result Not Found'
+        endif
     finally
         let &l:grepprg  = l:grepprg_bak
         let &grepformat = l:grepformat_bak
