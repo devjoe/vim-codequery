@@ -5,9 +5,12 @@
 " Menu
 
 
-command! -nargs=* -complete=customlist,s:complete_function CodeQuery call s:run_codequery(<q-args>)
+command! -nargs=* -complete=customlist,s:complete_function CodeQuery
+            \ call s:run_codequery(<q-args>)
 command! -nargs=0 CodeQueryMakeDB call s:make_codequery_db()
 command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
+command! -nargs=0 CodeQueryMoveDBToGitDir
+            \ call s:move_codequery_db_to_git_hidden_dir()
 
 let s:subcommands = [ 'Symbol',
                     \ 'Definition', 'DefinitionGroup',
@@ -284,7 +287,23 @@ function! s:view_codequery_db()
         echom 'DB not Found'
     endif
 
-    execute '!echo "\nYour DB: (check modified_time)" && ls -alh ' . db_path
+    execute '!echo "\nYour DB is update at: "  &&  stat -f "\%Sm" ' . db_path
+endfunction
+
+
+function! s:move_codequery_db_to_git_hidden_dir()
+    let db_name = &filetype . '.db'
+    let git_root_dir = systemlist('git rev-parse --show-toplevel')[0]
+    let db_path = s:find_db_path()
+
+    if !v:shell_error && !empty(db_path)
+        let new_db_path = git_root_dir . '/.git/codequery/' . db_name
+        call system('mkdir -p ' . git_root_dir . '/.git/codequery/')
+        call system('mv ' . db_path . ' ' . new_db_path)
+        echom 'Done'
+    else
+        echo 'Git Dir Not Found or DB Not Found'
+    endif
 endfunction
 
 
