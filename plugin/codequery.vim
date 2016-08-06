@@ -7,6 +7,7 @@
 
 command! -nargs=* -complete=customlist,s:complete_function CodeQuery call s:run_codequery(<q-args>)
 command! -nargs=0 CodeQueryMakeDB call s:make_codequery_db()
+command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
 
 let s:subcommands = [ 'Symbol',
                     \ 'Definition', 'DefinitionGroup',
@@ -261,12 +262,31 @@ function! s:make_codequery_db()
     " ------------------------------------
 
     if exists(':Start')
-        execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
+        silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
+        redraw!
+        echo 'Run :CodeQueryViewDB to Check Status'
     else
         silent execute '!' . shell_cmd
         redraw!
     endif
 endfunction
+
+
+function! s:view_codequery_db()
+    " TODO: remove duplicated filetype checking code
+    if !s:check_filetype()
+        echom 'Not Supported Filetype: ' . &filetype
+        return
+    endif
+
+    let db_path = s:find_db_path()
+    if empty(db_path)
+        echom 'DB not Found'
+    endif
+
+    execute '!echo "\nYour DB: (check modified_time)" && ls -alh ' . db_path
+endfunction
+
 
 
 " =============================================================================
