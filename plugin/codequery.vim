@@ -96,7 +96,7 @@ endfunction
 
 
 function! s:is_valid_word(word)
-    return strlen(matchstr(a:word, '\v[a-z|A-Z|0-9|_]+')) > 0
+    return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_]+$')) > 0
 endfunction
 
 
