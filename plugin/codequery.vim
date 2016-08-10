@@ -11,17 +11,19 @@ command! -nargs=0 CodeQueryMakeDB call s:make_codequery_db()
 command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
 command! -nargs=0 CodeQueryMoveDBToGitDir
             \ call s:move_codequery_db_to_git_hidden_dir()
+command! -nargs=* CodeQueryMenu call s:show_menu(<q-args>)
 
-let s:subcommands = [ 'Symbol',
+let s:query_subcommands = [ 'Symbol',
                     \ 'Definition', 'DefinitionGroup',
                     \ 'Caller', 'Callee', 'Call',
                     \ 'Class', 'Member', 'Parent', 'Child',
                     \ 'FunctionList',
                     \ 'FileImporter',
                     \ ]
+let s:menu_subcommands = [ 'Unite' ]
 
 function! s:complete_function(arg_lead, cmd_line, cursor_pos)
-    return s:subcommands
+    return s:query_subcommands
 endfunction
 
 
@@ -214,7 +216,7 @@ function! s:run_codequery(args)
     if args_num == 0
         call s:do_grep(cword)
 
-    elseif index(s:subcommands, args[0]) != -1
+    elseif index(s:query_subcommands, args[0]) != -1
         call s:set_options(args)
         let iword = s:get_valid_input_word(args)
 
@@ -304,6 +306,44 @@ function! s:move_codequery_db_to_git_hidden_dir()
     else
         echom 'Git Dir Not Found or DB Not Found'
     endif
+endfunction
+
+
+function! s:show_menu(args)
+    let args = split(a:args, ' ')
+    let args_num = len(args)
+
+    if args_num > 0 && index(s:menu_subcommands, args[0]) != -1
+        if args[0] ==# 'Unite'
+            let g:unite_source_menu_menus.codequery = {
+                \ 'description' : 'CQ Smart Menu',
+                \}
+            let g:unite_source_menu_menus.codequery.command_candidates = [
+                \['▷  Find Symbol', 'CodeQuery'],
+                \['# ----------------- #', ''],
+                \['▷  Find Function Def.', 'CodeQuery Definition'],
+                \['▷  Find Call', 'CodeQuery Call'],
+                \['▷  Find Caller', 'CodeQuery Caller'],
+                \['▷  Find Callee', 'CodeQuery Callee'],
+                \['# ----------------- #', ''],
+                \['▷  Find Class Def.', 'CodeQuery Class'],
+                \['▷  Find Class Member', 'CodeQuery Member'],
+                \['▷  Find Parent', 'CodeQuery Parent'],
+                \['▷  Find Child', 'CodeQuery Child'],
+                \['# ----------------- #', ''],
+                \['▷  List Function', 'CodeQuery FunctionList'],
+                \['▷  List Imports', 'CodeQuery FileImporter'],
+                \['# ----------------- #', ''],
+                \['▷  Make DB', 'CodeQueryMakeDB'],
+                \['▷  View DB', 'CodeQueryViewDB'],
+                \['▷  Move DB', 'CodeQueryMoveDBToGitDir'],
+                \]
+            execute 'Unite -start-insert -silent -prompt=::CQ:: menu:codequery'
+            return
+        endif
+    endif
+
+    echom 'Wrong Subcommands! Try: ' . join(s:menu_subcommands, ', ')
 endfunction
 
 
