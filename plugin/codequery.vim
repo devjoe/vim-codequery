@@ -163,10 +163,10 @@ function! s:do_grep(word)
 
         let results = getqflist()
         if !empty(results)
-            echo 'Found ' . len(results) . ' results'
+            echom 'Found ' . len(results) . ' results'
             copen
         else
-            echo 'Result Not Found'
+            echom 'Result Not Found'
         endif
     finally
         let &l:grepprg  = l:grepprg_bak
@@ -231,7 +231,7 @@ function! s:run_codequery(args)
 
         call s:do_grep(iword)
     else
-        echo 'Wrong Subcommand !'
+        echom 'Wrong Subcommand !'
     endif
 endfunction
 
@@ -267,7 +267,7 @@ function! s:make_codequery_db()
     if exists(':Start')
         silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
         redraw!
-        echo 'Run :CodeQueryViewDB to Check Status'
+        echom 'Run :CodeQueryViewDB to Check Status'
     else
         silent execute '!' . shell_cmd
         redraw!
@@ -302,7 +302,7 @@ function! s:move_codequery_db_to_git_hidden_dir()
         call system('mv ' . db_path . ' ' . new_db_path)
         echom 'Done'
     else
-        echo 'Git Dir Not Found or DB Not Found'
+        echom 'Git Dir Not Found or DB Not Found'
     endif
 endfunction
 
