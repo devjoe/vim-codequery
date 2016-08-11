@@ -165,7 +165,6 @@ function! s:do_grep(word)
 
         let results = getqflist()
         if !empty(results)
-            echom 'Found ' . len(results) . ' results'
             copen
             echom 'Found ' . len(results) . ' results'
         else
@@ -188,6 +187,60 @@ function! s:set_options(args)
     if index(a:args, '-a') != -1
         let s:append_to_quickfix = 1
     endif
+endfunction
+
+
+function! s:use_unite_menu(magic)
+    let cword = s:get_valid_cursor_word()
+    let menu_frequent_cmds = [['▷  Find Symbol', 'CodeQuery']]
+    let menu_function_cmds = [['▷  Find Function Def.     [F]', 'CodeQuery Definition'],
+                             \['▷  Find Call              [F]', 'CodeQuery Call'],
+                             \['▷  Find Caller            [F]', 'CodeQuery Caller'],
+                             \['▷  Find Callee            [F]', 'CodeQuery Callee']]
+    let menu_class_cmds =    [['▷  Find Class Def.        [C]', 'CodeQuery Class'],
+                             \['▷  Find Class Member      [C]', 'CodeQuery Member'],
+                             \['▷  Find Parent            [C]', 'CodeQuery Parent'],
+                             \['▷  Find Child             [C]', 'CodeQuery Child']]
+    let menu_other_cmds =    [['▷  List Function', 'CodeQuery FunctionList'],
+                             \['▷  List Imports', 'CodeQuery FileImporter']]
+    let menu_delimiter =     [['* ------------------------- *', '']]
+    let menu_db_cmds =       [['▷  Make DB', 'CodeQueryMakeDB'],
+                             \['▷  View DB', 'CodeQueryViewDB'],
+                             \['▷  Move DB', 'CodeQueryMoveDBToGitDir']]
+    let menu_goto_magic =    [['▷  <Open Magic Menu>', 'CodeQueryMenu Unite Magic']]
+    let menu_goto_full =     [['▷  <Open Full Menu>', 'CodeQueryMenu Unite Full']]
+
+    if a:magic
+        let menu_description = 'CodeQuery Smart Menu'
+        if cword =~ '\C^[A-Z].*'
+            let cmd_candidates = menu_frequent_cmds
+                             \ + menu_class_cmds
+                             \ + menu_other_cmds
+                             \ + menu_goto_full
+        else
+            let cmd_candidates = menu_frequent_cmds
+                             \ + menu_function_cmds
+                             \ + menu_other_cmds
+                             \ + menu_goto_full
+        endif
+    else
+        let menu_description = 'CodeQuery Full Menu'
+        let cmd_candidates = menu_frequent_cmds
+                         \ + menu_function_cmds
+                         \ + menu_class_cmds
+                         \ + menu_other_cmds
+                         \ + menu_delimiter
+                         \ + menu_db_cmds
+                         \ + menu_delimiter
+                         \ + menu_goto_magic
+    endif
+
+    let g:unite_source_menu_menus.codequery = {
+        \ 'description' : menu_description,
+    \}
+    let g:unite_source_menu_menus.codequery.command_candidates = cmd_candidates
+    execute 'Unite -start-insert -silent -prompt=::' . cword
+                \ . ':: menu:codequery'
 endfunction
 
 
@@ -316,30 +369,12 @@ function! s:show_menu(args)
 
     if args_num > 0 && index(s:menu_subcommands, args[0]) != -1
         if args[0] ==# 'Unite'
-            let g:unite_source_menu_menus.codequery = {
-                \ 'description' : 'CQ Smart Menu',
-                \}
-            let g:unite_source_menu_menus.codequery.command_candidates = [
-                \['▷  Find Symbol', 'CodeQuery'],
-                \['# ----------------- #', ''],
-                \['▷  Find Function Def.', 'CodeQuery Definition'],
-                \['▷  Find Call', 'CodeQuery Call'],
-                \['▷  Find Caller', 'CodeQuery Caller'],
-                \['▷  Find Callee', 'CodeQuery Callee'],
-                \['# ----------------- #', ''],
-                \['▷  Find Class Def.', 'CodeQuery Class'],
-                \['▷  Find Class Member', 'CodeQuery Member'],
-                \['▷  Find Parent', 'CodeQuery Parent'],
-                \['▷  Find Child', 'CodeQuery Child'],
-                \['# ----------------- #', ''],
-                \['▷  List Function', 'CodeQuery FunctionList'],
-                \['▷  List Imports', 'CodeQuery FileImporter'],
-                \['# ----------------- #', ''],
-                \['▷  Make DB', 'CodeQueryMakeDB'],
-                \['▷  View DB', 'CodeQueryViewDB'],
-                \['▷  Move DB', 'CodeQueryMoveDBToGitDir'],
-                \]
-            execute 'Unite -start-insert -silent -prompt=::CQ:: menu:codequery'
+            if args_num > 1 && args[1] ==# 'Magic'
+                let magic_menu = 1
+            else
+                let magic_menu = 0
+            endif
+            call s:use_unite_menu(magic_menu)
             return
         endif
     endif
