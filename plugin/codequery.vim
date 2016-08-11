@@ -167,6 +167,7 @@ function! s:do_grep(word)
         if !empty(results)
             echom 'Found ' . len(results) . ' results'
             copen
+            echom 'Found ' . len(results) . ' results'
         else
             echom 'Result Not Found'
         endif
