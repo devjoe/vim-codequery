@@ -98,7 +98,7 @@ endfunction
 
 
 function! s:is_valid_word(word)
-    return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_]+$')) > 0
+    return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_|*|?]+$')) > 0
 endfunction
 
 
@@ -130,24 +130,31 @@ function! s:do_grep(word)
         return
     endif
 
-    let fuzzy_option = s:fuzzy ? '-f' : '-e'
+    if s:fuzzy
+        let fuzzy_option = '-f'
+        let word = '"' . a:word . '"'
+    else
+        let fuzzy_option = '-e'
+        let word = a:word
+    endif
+
     let pipeline_script_option = ' \| cut -f 2,3'
 
     let grepformat = '%f:%l%m'
     let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
-                \ a:word . ' -u ' . fuzzy_option . pipeline_script_option
+                \ word . ' -u ' . fuzzy_option . pipeline_script_option
 
     if s:querytype == s:subcmd_map['FileImporter']
 
         let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
-                    \ a:word . ' -u ' . fuzzy_option
+                    \ word . ' -u ' . fuzzy_option
 
     elseif s:querytype == s:subcmd_map['Callee'] ||
          \ s:querytype == s:subcmd_map['Caller'] ||
          \ s:querytype == s:subcmd_map['Member']
 
         let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
-            \ a:word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
+            \ word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
 
     elseif s:querytype == s:subcmd_map['DefinitionGroup']
         echom 'Not Implement !'
@@ -239,7 +246,7 @@ function! s:use_unite_menu(magic)
         \ 'description' : menu_description,
     \}
     let g:unite_source_menu_menus.codequery.command_candidates = cmd_candidates
-    execute 'Unite -start-insert -silent -prompt=::' . cword
+    execute 'Unite -silent -prompt-visible -prompt=::' . cword
                 \ . ':: menu:codequery'
 endfunction
 
