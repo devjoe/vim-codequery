@@ -213,7 +213,7 @@ endfunction
 
 function! s:use_unite_menu(magic)
     let cword = s:get_valid_cursor_word()
-    let menu_frequent_cmds = [['▷  Find Symbol', 'CodeQuery']]
+    let menu_frequent_cmds = [['▷  Find Symbol', 'CodeQuery Symbol']]
     let menu_function_cmds = [['▷  Find Function Def.     [F]', 'CodeQuery Definition'],
                              \['▷  Find Call              [F]', 'CodeQuery Call'],
                              \['▷  Find Caller            [F]', 'CodeQuery Caller'],
