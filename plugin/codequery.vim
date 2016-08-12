@@ -265,6 +265,9 @@ function! s:use_unite_menu(magic)
                          \ + menu_goto_magic
     endif
 
+    if !exists('g:unite_source_menu_menus')
+        let g:unite_source_menu_menus = {}
+    endif
     let g:unite_source_menu_menus.codequery = {
         \ 'description' : menu_description,
     \}
