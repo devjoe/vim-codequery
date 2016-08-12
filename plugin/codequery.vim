@@ -7,6 +7,8 @@
 
 command! -nargs=* -complete=customlist,s:complete_function CodeQuery
             \ call s:run_codequery(<q-args>)
+command! -nargs=* -complete=customlist,s:complete_function CodeQueryAgain
+            \ call s:run_codequery_again_with_different_subcmd(<q-args>)
 command! -nargs=0 CodeQueryMakeDB call s:make_codequery_db()
 command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
 command! -nargs=0 CodeQueryMoveDBToGitDir
@@ -180,6 +182,8 @@ function! s:do_grep(word)
     finally
         let &l:grepprg  = l:grepprg_bak
         let &grepformat = l:grepformat_bak
+        let s:last_query_word = a:word
+        let s:last_query_fuzzy = s:fuzzy
     endtry
 endfunction
 
@@ -194,6 +198,16 @@ function! s:set_options(args)
     if index(a:args, '-a') != -1
         let s:append_to_quickfix = 1
     endif
+endfunction
+
+
+function! s:patch_unite_magic_menu_from_qf(fre_cmds, fun_cmds, cla_cmds)
+    call map(a:fre_cmds, '[substitute(v:val[0], "Find", "Switch To", "g"), v:val[1]]')
+    call map(a:fun_cmds, '[substitute(v:val[0], "Find", "Switch To", "g"), v:val[1]]')
+    call map(a:cla_cmds, '[substitute(v:val[0], "Find", "Switch To", "g"), v:val[1]]')
+    call map(a:fre_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
+    call map(a:fun_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
+    call map(a:cla_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
 endfunction
 
 
@@ -218,8 +232,17 @@ function! s:use_unite_menu(magic)
     let menu_goto_full =     [['▷  <Open Full Menu>', 'CodeQueryMenu Unite Full']]
 
     if a:magic
+        if &filetype ==# 'qf'
+            call s:patch_unite_magic_menu_from_qf(menu_frequent_cmds,
+                                               \ menu_function_cmds,
+                                               \ menu_class_cmds)
+            let menu_other_cmds = []
+            let menu_goto_full = []
+            let cword = s:last_query_word
+        endif
+
         let menu_description = 'CodeQuery Smart Menu'
-        if cword =~ '\C^[A-Z].*'
+        if cword =~# '\C^[A-Z].*'
             let cmd_candidates = menu_frequent_cmds
                              \ + menu_class_cmds
                              \ + menu_other_cmds
@@ -262,6 +285,7 @@ function! s:run_codequery(args)
         return
     endif
 
+    let s:last_query_word = ''
     let s:fuzzy = 0
     let s:append_to_quickfix = 0
     let s:querytype = 1
@@ -389,6 +413,19 @@ function! s:show_menu(args)
     echom 'Wrong Subcommands! Try: ' . join(s:menu_subcommands, ', ')
 endfunction
 
+
+function! s:run_codequery_again_with_different_subcmd(args)
+    let args = split(a:args, ' ')
+    let args_num = len(args)
+    if !empty(s:last_query_word) && args_num > 0
+        cclose
+        let again_cmd = 'CodeQuery ' . args[0] . ' ' . s:last_query_word . ' '
+                      \ . (s:last_query_fuzzy ? '-f' : '')
+        execute again_cmd
+    else
+        echom 'Wrong Subcommands!'
+    endif
+endfunction
 
 
 " =============================================================================
