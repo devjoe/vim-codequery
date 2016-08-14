@@ -15,6 +15,7 @@ command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
 command! -nargs=0 CodeQueryMoveDBToGitDir
             \ call s:move_codequery_db_to_git_hidden_dir()
 command! -nargs=* CodeQueryMenu call s:show_menu(<q-args>)
+command! -nargs=0 CodeQueryShowQF call s:prettify_qf_layout_and_map_keys(getqflist())
 
 let s:query_subcommands = [ 'Symbol',
                     \ 'Definition', 'DefinitionGroup',
@@ -229,6 +230,7 @@ function! s:do_grep(word)
         let results = getqflist()
         if !empty(results)
             copen
+            call s:prettify_qf_layout_and_map_keys(results)
             echom 'Found ' . len(results) . ' results'
         else
             echom 'Result Not Found'
@@ -262,6 +264,7 @@ function! s:patch_unite_magic_menu_from_qf(fre_cmds, fun_cmds, cla_cmds)
     call map(a:fre_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
     call map(a:fun_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
     call map(a:cla_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
+    call insert(a:fre_cmds, ['▷  Filter', 'call feedkeys(":CodeQueryFilter ")'], -1)
 endfunction
 
 
