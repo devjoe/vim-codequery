@@ -9,6 +9,7 @@ command! -nargs=* -complete=customlist,s:complete_function CodeQuery
             \ call s:run_codequery(<q-args>)
 command! -nargs=* -complete=customlist,s:complete_function CodeQueryAgain
             \ call s:run_codequery_again_with_different_subcmd(<q-args>)
+command! -nargs=* CodeQueryFilter call s:filter_qf_results(<q-args>)
 command! -nargs=0 CodeQueryMakeDB call s:make_codequery_db()
 command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
 command! -nargs=0 CodeQueryMoveDBToGitDir
@@ -123,6 +124,59 @@ function! s:get_valid_input_word(args)
     endif
 
     return s:is_valid_word(args[1]) ? args[1] : ''
+endfunction
+
+
+function! s:prettify_qf_layout_and_map_keys(results)
+    if &filetype !=# 'qf'
+        copen
+    endif
+
+    " unlock qf to make changes
+    setlocal modifiable
+    setlocal nolist
+    setlocal nowrap
+
+    " delete all the text in qf
+    silent %delete
+
+    " insert new text with pretty layout
+    let max_filename_len = 0
+    let max_lnum_len = 0
+    for d in a:results
+        let d['filename'] = bufname(d['bufnr'])
+        let max_filename_len = max([max_filename_len, len(d['filename'])])
+        let max_lnum_len = max([max_lnum_len, len(d['lnum'])])
+    endfor
+    let max_filename_len = min([max_filename_len, 70])
+    call append('0', map(copy(a:results), 'printf("%-' . max_filename_len . 'S | %' . max_lnum_len . 'S | %s", v:val["filename"], v:val["lnum"], v:val["text"])'))
+
+    " delete empty line
+    global/^$/delete
+
+    " put the cursor back
+    normal! gg
+
+    " map shortcuts
+    nnoremap <buffer> s :CodeQueryAgain Symbol<CR>
+    nnoremap <buffer> c :CodeQueryAgain Call<CR>
+    nnoremap <buffer> r :CodeQueryAgain Caller<CR>
+    nnoremap <buffer> i :CodeQueryAgain Callee<CR>
+    nnoremap <buffer> d :CodeQueryAgain Definition<CR>
+    nnoremap <buffer> C :CodeQueryAgain Class<CR>
+    nnoremap <buffer> M :CodeQueryAgain Member<CR>
+    nnoremap <buffer> P :CodeQueryAgain Parent<CR>
+    nnoremap <buffer> I :CodeQueryAgain Child<CR>
+    nnoremap <buffer> \ :CodeQueryFilter 
+
+    nnoremap <buffer> p <CR><C-W>p
+    nnoremap <buffer> u :colder \| CodeQueryShowQF<CR>
+    nnoremap <buffer> <C-R> :cnewer \| CodeQueryShowQF<CR>
+
+
+    " lock qf again
+    setlocal nomodifiable
+    setlocal nomodified
 endfunction
 
 
@@ -429,6 +483,20 @@ function! s:run_codequery_again_with_different_subcmd(args)
         echom 'Wrong Subcommands!'
     endif
 endfunction
+
+
+" modify from someone's .vimrc
+function! s:filter_qf_results(query)
+    let results = getqflist()
+    for d in results
+        if bufname(d['bufnr']) !~ a:query && d['text'] !~ a:query
+            call remove(results, index(results, d))
+        endif
+    endfor
+    call setqflist(results)
+    call s:prettify_qf_layout_and_map_keys(results)
+endfunction
+
 
 
 " =============================================================================
