@@ -15,7 +15,8 @@ command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
 command! -nargs=0 CodeQueryMoveDBToGitDir
             \ call s:move_codequery_db_to_git_hidden_dir()
 command! -nargs=* CodeQueryMenu call s:show_menu(<q-args>)
-command! -nargs=0 CodeQueryShowQF call s:prettify_qf_layout_and_map_keys(getqflist())
+command! -nargs=0 CodeQueryShowQF call
+            \ s:prettify_qf_layout_and_map_keys(getqflist())
 
 let s:query_subcommands = [ 'Symbol',
                     \ 'Definition', 'DefinitionGroup',
@@ -128,6 +129,7 @@ function! s:get_valid_input_word(args)
 endfunction
 
 
+" Ref: MarcWeber's vim-addon-qf-layout
 function! s:prettify_qf_layout_and_map_keys(results)
     if &filetype !=# 'qf'
         copen
@@ -142,15 +144,19 @@ function! s:prettify_qf_layout_and_map_keys(results)
     silent %delete
 
     " insert new text with pretty layout
-    let max_filename_len = 0
+    let max_fn_len = 0
     let max_lnum_len = 0
     for d in a:results
         let d['filename'] = bufname(d['bufnr'])
-        let max_filename_len = max([max_filename_len, len(d['filename'])])
+        let max_fn_len = max([max_fn_len, len(d['filename'])])
         let max_lnum_len = max([max_lnum_len, len(d['lnum'])])
     endfor
-    let max_filename_len = min([max_filename_len, 70])
-    call append('0', map(copy(a:results), 'printf("%-' . max_filename_len . 'S | %' . max_lnum_len . 'S | %s", v:val["filename"], v:val["lnum"], v:val["text"])'))
+    let reasonable_max_len = 60
+    let max_fn_len = min([max_fn_len, reasonable_max_len])
+    let qf_format = '"%-' . max_fn_len . 'S | %' . max_lnum_len . 'S | %s"'
+    let evaluating_str = 'printf(' . qf_format .
+                    \ ', v:val["filename"], v:val["lnum"], v:val["text"])'
+    call append('0', map(a:results, evaluating_str))
 
     " delete empty line
     global/^$/delete
@@ -162,18 +168,17 @@ function! s:prettify_qf_layout_and_map_keys(results)
     nnoremap <buffer> s :CodeQueryAgain Symbol<CR>
     nnoremap <buffer> c :CodeQueryAgain Call<CR>
     nnoremap <buffer> r :CodeQueryAgain Caller<CR>
-    nnoremap <buffer> i :CodeQueryAgain Callee<CR>
+    nnoremap <buffer> y :CodeQueryAgain Callee<CR>
     nnoremap <buffer> d :CodeQueryAgain Definition<CR>
     nnoremap <buffer> C :CodeQueryAgain Class<CR>
     nnoremap <buffer> M :CodeQueryAgain Member<CR>
     nnoremap <buffer> P :CodeQueryAgain Parent<CR>
-    nnoremap <buffer> I :CodeQueryAgain Child<CR>
+    nnoremap <buffer> D :CodeQueryAgain Child<CR>
     nnoremap <buffer> \ :CodeQueryFilter 
 
     nnoremap <buffer> p <CR><C-W>p
     nnoremap <buffer> u :colder \| CodeQueryShowQF<CR>
     nnoremap <buffer> <C-R> :cnewer \| CodeQueryShowQF<CR>
-
 
     " lock qf again
     setlocal nomodifiable
@@ -198,20 +203,20 @@ function! s:do_grep(word)
     let pipeline_script_option = ' \| cut -f 2,3'
 
     let grepformat = '%f:%l%m'
-    let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
-                \ word . ' -u ' . fuzzy_option . pipeline_script_option
+    let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
+                \ . word . ' -u ' . fuzzy_option . pipeline_script_option
 
     if s:querytype == s:subcmd_map['FileImporter']
 
-        let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
-                    \ word . ' -u ' . fuzzy_option
+        let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
+                    \ . word . ' -u ' . fuzzy_option
 
     elseif s:querytype == s:subcmd_map['Callee'] ||
          \ s:querytype == s:subcmd_map['Caller'] ||
          \ s:querytype == s:subcmd_map['Member']
 
-        let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t ' .
-            \ word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
+        let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
+            \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
 
     elseif s:querytype == s:subcmd_map['DefinitionGroup']
         echom 'Not Implement !'
@@ -228,9 +233,8 @@ function! s:do_grep(word)
         redraw!
 
         let results = getqflist()
+        call s:prettify_qf_layout_and_map_keys(results)
         if !empty(results)
-            copen
-            call s:prettify_qf_layout_and_map_keys(results)
             echom 'Found ' . len(results) . ' results'
         else
             echom 'Result Not Found'
@@ -499,11 +503,3 @@ function! s:filter_qf_results(query)
     call setqflist(results)
     call s:prettify_qf_layout_and_map_keys(results)
 endfunction
-
-
-
-" =============================================================================
-" Debugging
-
-
-"nnoremap <leader>c :CodeQuery<CR> 
