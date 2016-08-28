@@ -10,10 +10,10 @@ command! -nargs=* -complete=customlist,s:complete_function CodeQuery
 command! -nargs=* -complete=customlist,s:complete_function CodeQueryAgain
             \ call s:run_codequery_again_with_different_subcmd(<q-args>)
 command! -nargs=* CodeQueryFilter call s:filter_qf_results(<q-args>)
-command! -nargs=0 CodeQueryMakeDB call s:make_codequery_db()
-command! -nargs=0 CodeQueryViewDB call s:view_codequery_db()
-command! -nargs=0 CodeQueryMoveDBToGitDir
-            \ call s:move_codequery_db_to_git_hidden_dir()
+command! -nargs=* CodeQueryMakeDB call s:make_codequery_db(<q-args>)
+command! -nargs=* CodeQueryViewDB call s:view_codequery_db(<q-args>)
+command! -nargs=* CodeQueryMoveDBToGitDir
+            \ call s:move_codequery_db_to_git_hidden_dir(<q-args>)
 command! -nargs=* CodeQueryMenu call s:show_menu(<q-args>)
 command! -nargs=0 CodeQueryShowQF call
             \ s:prettify_qf_layout_and_map_keys(getqflist())
@@ -51,10 +51,10 @@ let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'DefinitionGroup' : 20 }
 
 
-function! s:check_filetype()
+function! s:check_filetype(filetype)
     let supported_filetypes =
         \ ['python', 'javascript', 'go', 'ruby', 'java', 'c', 'cpp']
-    if index(supported_filetypes, &filetype) == -1
+    if index(supported_filetypes, a:filetype) == -1
         return 0
     endif
     return 1
@@ -62,8 +62,8 @@ endfunction
 
 
 " `lcd` brings side effect !! 
-function! s:find_db_path()
-    let db_name = &filetype . '.db'
+function! s:find_db_path(filetype)
+    let db_name = a:filetype . '.db'
     let lookup_path = findfile(expand('%:h') . '/' . db_name, '.')
 
     if !empty(lookup_path)
@@ -91,7 +91,7 @@ endfunction
 
 
 function! s:set_db()
-    let path = s:find_db_path()
+    let path = s:find_db_path(&filetype)
     if empty(path)
         echom 'CodeQuery DB Not Found'
         return 0
@@ -99,6 +99,25 @@ function! s:set_db()
 
     let s:db_path = path
     return 1
+endfunction
+
+
+function! s:construct_python_db_build_cmd(db_path)
+    let cscope_file = 'python_cscope.files'
+    let cscopeout_file = 'python_cscope.out'
+    let tags_file = 'python_tags'
+
+    let find_cmd = 'find . -iname "*.py" > ' . cscope_file
+    let pycscope_cmd = 'pycscope -f "' . cscopeout_file . '" -i ' . cscope_file
+    let ctags_cmd = 'ctags --fields=+i -n -R -f "' .
+                    \ tags_file . '" -L ' . cscope_file
+    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path . '" -c ' . cscopeout_file .
+                       \ ' -t ' . tags_file . ' -p'
+    let shell_cmd = find_cmd . ' && ' .
+                  \ pycscope_cmd . ' && ' .
+                  \ ctags_cmd . ' && ' .
+                  \ cqmakedb_cmd
+    return shell_cmd
 endfunction
 
 
@@ -289,9 +308,9 @@ function! s:use_unite_menu(magic)
     let menu_other_cmds =    [['▷  List Function', 'CodeQuery FunctionList'],
                              \['▷  List Imports', 'CodeQuery FileImporter']]
     let menu_delimiter =     [['* ------------------------- *', '']]
-    let menu_db_cmds =       [['▷  Make DB', 'CodeQueryMakeDB'],
-                             \['▷  View DB', 'CodeQueryViewDB'],
-                             \['▷  Move DB', 'CodeQueryMoveDBToGitDir']]
+    let menu_db_cmds =       [['▷  Make DB', 'call feedkeys(":CodeQueryMakeDB ")'],
+                             \['▷  View DB', 'call feedkeys(":CodeQueryViewDB ")'],
+                             \['▷  Move DB', 'call feedkeys(":CodeQueryMoveDBToGitDir ")']]
     let menu_show_qf =       [['▷  Show QF', 'CodeQueryShowQF']]
     let menu_goto_magic =    [['▷  <Open Magic Menu>', 'CodeQueryMenu Unite Magic']]
     let menu_goto_full =     [['▷  <Open Full Menu>', 'CodeQueryMenu Unite Full']]
@@ -351,7 +370,7 @@ endfunction
 
 
 function! s:run_codequery(args)
-    if !s:check_filetype()
+    if !s:check_filetype(&filetype)
         echom 'Not Supported Filetype: ' . &filetype
         return
     endif
@@ -394,74 +413,85 @@ function! s:run_codequery(args)
 endfunction
 
 
-function! s:make_codequery_db()
-    if !s:check_filetype()
-        echom 'Not Supported Filetype: ' . &filetype
-        return
+function! s:make_codequery_db(args)
+    let args = split(a:args, ' ')
+    if empty(args)
+        let args = [&filetype]
     endif
 
-    let db_path = s:find_db_path()
-    if empty(db_path)
-        let db_path = &filetype . '.db'
-    endif
+    for ft in args
+        if !s:check_filetype(ft)
+            echom 'Not Supported Filetype: ' . ft
+            continue
+        endif
 
-    " TODO: refactor later ---------------
-    let cscope_file = &filetype . '_cscope.files'
-    let cscopeout_file = &filetype . '_cscope.out'
-    let tags_file = &filetype . '_tags'
+        let db_path = s:find_db_path(ft)
+        if empty(db_path)
+            let db_path = ft . '.db'
+        endif
 
-    let find_cmd = 'find . -iname "*.py" > ' . cscope_file
-    let pycscope_cmd = 'pycscope -f "' . cscopeout_file . '" -i ' . cscope_file
-    let ctags_cmd = 'ctags --fields=+i -n -R -f "' .
-                    \ tags_file . '" -L ' . cscope_file
-    let cqmakedb_cmd = 'cqmakedb -s "' . db_path . '" -c ' . cscopeout_file .
-                       \ ' -t ' . tags_file . ' -p'
-    let shell_cmd = find_cmd . ' && ' .
-                  \ pycscope_cmd . ' && ' .
-                  \ ctags_cmd . ' && ' .
-                  \ cqmakedb_cmd
-    " ------------------------------------
+        if ft ==? 'python'
+            let shell_cmd = s:construct_python_db_build_cmd(db_path)
+        else
+            echom 'No Command For Building ' . ft . ' DB'
+            continue
+        endif
 
-    if exists(':Start')
-        silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
-        redraw!
-        echom 'Run :CodeQueryViewDB to Check Status'
-    else
-        silent execute '!' . shell_cmd
-        redraw!
-    endif
+        if exists(':Start')
+            silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
+            redraw!
+            echom 'Making ' . db_path ' => Run :CodeQueryViewDB to Check Status'
+        else
+            silent execute '!' . shell_cmd
+            redraw!
+        endif
+    endfor
 endfunction
 
 
-function! s:view_codequery_db()
-    " TODO: remove duplicated filetype checking code
-    if !s:check_filetype()
-        echom 'Not Supported Filetype: ' . &filetype
-        return
+function! s:view_codequery_db(args)
+    let args = split(a:args, ' ')
+    if empty(args)
+        let args = [&filetype]
     endif
 
-    let db_path = s:find_db_path()
-    if empty(db_path)
-        echom 'DB not Found'
-    endif
+    for ft in args
+        if !s:check_filetype(ft)
+            echom 'Not Supported Filetype: ' . ft
+            continue
+        endif
 
-    execute '!echo "\nYour DB is update at: "  &&  stat -f "\%Sm" ' . db_path
+        let db_path = s:find_db_path(ft)
+        if empty(db_path)
+            execute '!echo "\n(' . ft . ') DB Not Found"'
+            continue
+        endif
+
+        execute '!echo "\n(' . db_path . ') is update at: "  &&  stat -f "\%Sm" ' . db_path
+    endfor
 endfunction
 
 
-function! s:move_codequery_db_to_git_hidden_dir()
-    let db_name = &filetype . '.db'
-    let git_root_dir = systemlist('git rev-parse --show-toplevel')[0]
-    let db_path = s:find_db_path()
-
-    if !v:shell_error && !empty(db_path)
-        let new_db_path = git_root_dir . '/.git/codequery/' . db_name
-        call system('mkdir -p ' . git_root_dir . '/.git/codequery/')
-        call system('mv ' . db_path . ' ' . new_db_path)
-        echom 'Done'
-    else
-        echom 'Git Dir Not Found or DB Not Found'
+function! s:move_codequery_db_to_git_hidden_dir(args)
+    let args = split(a:args, ' ')
+    if empty(args)
+        let args = [&filetype]
     endif
+
+    for ft in args
+        let db_name = ft . '.db'
+        let git_root_dir = systemlist('git rev-parse --show-toplevel')[0]
+        let db_path = s:find_db_path(ft)
+
+        if !v:shell_error && !empty(db_path)
+            let new_db_path = git_root_dir . '/.git/codequery/' . db_name
+            call system('mkdir -p ' . git_root_dir . '/.git/codequery/')
+            call system('mv ' . db_path . ' ' . new_db_path)
+            echom '(' . ft . ') DB Done'
+        else
+            echom 'Git Dir Not Found or (' . ft . ') DB Not Found'
+        endif
+    endfor
 endfunction
 
 
