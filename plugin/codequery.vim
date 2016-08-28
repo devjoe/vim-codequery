@@ -168,12 +168,15 @@ function! s:prettify_qf_layout_and_map_keys(results)
     nnoremap <buffer> s :CodeQueryAgain Symbol<CR>
     nnoremap <buffer> c :CodeQueryAgain Call<CR>
     nnoremap <buffer> r :CodeQueryAgain Caller<CR>
-    nnoremap <buffer> y :CodeQueryAgain Callee<CR>
+    nnoremap <buffer> e :CodeQueryAgain Callee<CR>
     nnoremap <buffer> d :CodeQueryAgain Definition<CR>
     nnoremap <buffer> C :CodeQueryAgain Class<CR>
     nnoremap <buffer> M :CodeQueryAgain Member<CR>
     nnoremap <buffer> P :CodeQueryAgain Parent<CR>
     nnoremap <buffer> D :CodeQueryAgain Child<CR>
+
+    nnoremap <buffer> m :CodeQueryMenu Unite Magic<CR>
+    nnoremap <buffer> q :cclose<CR>
     nnoremap <buffer> \ :CodeQueryFilter 
 
     nnoremap <buffer> p <CR><C-W>p
