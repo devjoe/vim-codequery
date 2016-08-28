@@ -292,6 +292,7 @@ function! s:use_unite_menu(magic)
     let menu_db_cmds =       [['▷  Make DB', 'CodeQueryMakeDB'],
                              \['▷  View DB', 'CodeQueryViewDB'],
                              \['▷  Move DB', 'CodeQueryMoveDBToGitDir']]
+    let menu_show_qf =       [['▷  Show QF', 'CodeQueryShowQF']]
     let menu_goto_magic =    [['▷  <Open Magic Menu>', 'CodeQueryMenu Unite Magic']]
     let menu_goto_full =     [['▷  <Open Full Menu>', 'CodeQueryMenu Unite Full']]
 
@@ -305,16 +306,18 @@ function! s:use_unite_menu(magic)
             let cword = s:last_query_word
         endif
 
-        let menu_description = 'CodeQuery Smart Menu'
+        let menu_description = 'CodeQuery Magic Menu'
         if cword =~# '\C^[A-Z].*'
             let cmd_candidates = menu_frequent_cmds
                              \ + menu_class_cmds
                              \ + menu_other_cmds
+                             \ + menu_show_qf
                              \ + menu_goto_full
         else
             let cmd_candidates = menu_frequent_cmds
                              \ + menu_function_cmds
                              \ + menu_other_cmds
+                             \ + menu_show_qf
                              \ + menu_goto_full
         endif
     else
@@ -326,6 +329,7 @@ function! s:use_unite_menu(magic)
                          \ + menu_delimiter
                          \ + menu_db_cmds
                          \ + menu_delimiter
+                         \ + menu_show_qf
                          \ + menu_goto_magic
     endif
 
