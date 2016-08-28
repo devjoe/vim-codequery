@@ -86,11 +86,11 @@ echo mkdir mv cut find awk stat git(optional)
 
 > Starscope has been [packaged for Arch Linux](https://aur.archlinux.org/packages/ruby-starscope/)    
 
-### 4. Install Vim plugins
+#### 4. Install Vim plugins
 * Use your favorite plugins manager: [pathogen](https://github.com/tpope/vim-pathogen), [Vundle](https://github.com/VundleVim/Vundle.vim), [Plug](https://github.com/junegunn/vim-plug), [NeoBundle](https://github.com/Shougo/neobundle.vim), [Dein](https://github.com/Shougo/dein.vim),  ...
 * Take Plug as an example:  
 ```vim
-" Highly Recommemded => it helps Vim-CodeQuery to build DBasynchrously without blocking Vim
+" Highly Recommemded => it helps Vim-CodeQuery to build DB asynchrously without blocking Vim
 Plug 'tpope/vim-dispatch'  
   
 " Highly Recommemded => if you want to use Unite menu
