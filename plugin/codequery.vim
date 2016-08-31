@@ -359,6 +359,10 @@ function! s:use_unite_menu(magic)
                              \ + menu_goto_full
         endif
     else
+        if &filetype ==# 'qf'
+            echom 'Can Not Open Full Menu In QF (Use Magic Menu)'
+            return
+        endif
         let menu_description = 'CodeQuery Full Menu'
         let cmd_candidates = menu_frequent_cmds
                          \ + menu_function_cmds
