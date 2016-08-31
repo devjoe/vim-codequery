@@ -311,9 +311,10 @@ function! s:use_unite_menu(magic)
     let menu_db_cmds =       [['▷  Make DB', 'call feedkeys(":CodeQueryMakeDB ")'],
                              \['▷  View DB', 'call feedkeys(":CodeQueryViewDB ")'],
                              \['▷  Move DB', 'call feedkeys(":CodeQueryMoveDBToGitDir ")']]
-    let menu_show_qf =       [['▷  Show QF', 'CodeQueryShowQF']]
-    let menu_goto_magic =    [['▷  <Open Magic Menu>', 'CodeQueryMenu Unite Magic']]
-    let menu_goto_full =     [['▷  <Open Full Menu>', 'CodeQueryMenu Unite Full']]
+    let menu_show_qf =       [['▷  Show QF ▲', 'CodeQueryShowQF'],
+                             \['▷  Hide QF ▼', 'cclose']]
+    let menu_goto_magic =    [['▷  Open Magic Menu ▸', 'CodeQueryMenu Unite Magic']]
+    let menu_goto_full =     [['▷  Open Full Menu ▸', 'CodeQueryMenu Unite Full']]
 
     if a:magic
         if &filetype ==# 'qf'
