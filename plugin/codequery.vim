@@ -2,6 +2,13 @@
 " MIT License
 
 " =============================================================================
+" Options
+
+let g:codequery_text_cmd = 'Ack!'
+
+
+
+" =============================================================================
 " Menu
 
 
@@ -18,7 +25,7 @@ command! -nargs=* CodeQueryMenu call s:show_menu(<q-args>)
 command! -nargs=0 CodeQueryShowQF call
             \ s:prettify_qf_layout_and_map_keys(getqflist())
 
-let s:query_subcommands = [ 'Symbol',
+let s:query_subcommands = [ 'Symbol', 'Text',
                     \ 'Definition', 'DefinitionGroup',
                     \ 'Caller', 'Callee', 'Call',
                     \ 'Class', 'Member', 'Parent', 'Child',
@@ -47,7 +54,8 @@ let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'Parent'          : 12,
                    \ 'Child'           : 11,
                    \ 'FunctionList'    : 13,
-                   \ 'FileImporter'    : 4 ,
+                   \ 'FileImporter'    : 4,
+                   \ 'Text'            : 21,
                    \ 'DefinitionGroup' : 20 }
 
 
@@ -185,6 +193,7 @@ function! s:prettify_qf_layout_and_map_keys(results)
 
     " map shortcuts
     nnoremap <buffer> s :CodeQueryAgain Symbol<CR>
+    nnoremap <buffer> x :CodeQueryAgain Text<CR>
     nnoremap <buffer> c :CodeQueryAgain Call<CR>
     nnoremap <buffer> r :CodeQueryAgain Caller<CR>
     nnoremap <buffer> e :CodeQueryAgain Callee<CR>
@@ -229,16 +238,22 @@ function! s:do_grep(word)
                 \ . word . ' -u ' . fuzzy_option . pipeline_script_option
 
     if s:querytype == s:subcmd_map['FileImporter']
-
         let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
                     \ . word . ' -u ' . fuzzy_option
 
     elseif s:querytype == s:subcmd_map['Callee'] ||
          \ s:querytype == s:subcmd_map['Caller'] ||
          \ s:querytype == s:subcmd_map['Member']
-
         let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
             \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
+
+    elseif s:querytype == s:subcmd_map['Text']
+        silent execute g:codequery_text_cmd . ' ' . a:word
+        call s:prettify_qf_layout_and_map_keys(getqflist())
+
+        let s:last_query_word = a:word
+        let s:last_query_fuzzy = s:fuzzy
+        return
 
     elseif s:querytype == s:subcmd_map['DefinitionGroup']
         echom 'Not Implement !'
@@ -290,13 +305,14 @@ function! s:patch_unite_magic_menu_from_qf(fre_cmds, fun_cmds, cla_cmds)
     call map(a:fre_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
     call map(a:fun_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
     call map(a:cla_cmds, '[v:val[0], substitute(v:val[1], "CodeQuery", "CodeQueryAgain", "")]')
-    call insert(a:fre_cmds, ['▷  Filter', 'call feedkeys(":CodeQueryFilter ")'], -1)
+    call insert(a:fre_cmds, ['▷  Filter', 'call feedkeys(":CodeQueryFilter ")'], 0)
 endfunction
 
 
 function! s:use_unite_menu(magic)
     let cword = s:get_valid_cursor_word()
-    let menu_frequent_cmds = [['▷  Find Symbol', 'CodeQuery Symbol']]
+    let menu_frequent_cmds = [['▷  Find Symbol', 'CodeQuery Symbol'],
+                             \['▷  Find Text', 'CodeQuery Text']]
     let menu_function_cmds = [['▷  Find Function Def.     [F]', 'CodeQuery Definition'],
                              \['▷  Find Call              [F]', 'CodeQuery Call'],
                              \['▷  Find Caller            [F]', 'CodeQuery Caller'],
