@@ -323,7 +323,9 @@ function! s:use_unite_menu(magic)
                                                \ menu_class_cmds)
             let menu_other_cmds = []
             let menu_goto_full = []
-            let cword = s:last_query_word
+            if exists('s:last_query_word')
+                let cword = s:last_query_word
+            endif
         endif
 
         let menu_description = 'CodeQuery Magic Menu'
