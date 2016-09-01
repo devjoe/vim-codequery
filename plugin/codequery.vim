@@ -129,6 +129,17 @@ function! s:construct_python_db_build_cmd(db_path)
 endfunction
 
 
+function! s:construct_javascript_db_build_cmd(db_path)
+    let starscope_cmd = 'starscope --force-update -e ctags -e cscope **/*.js'
+    let rename_cmd = 'mv tags javascript_tags && mv cscope.out javascript_cscope.out'
+    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path .
+                     \ '" -c ./javascript_cscope.out -t ./javascript_tags -p'
+
+    let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
+    return shell_cmd
+endfunction
+
+
 function! s:is_valid_word(word)
     return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_|*|?]+$')) > 0
 endfunction
@@ -455,6 +466,8 @@ function! s:make_codequery_db(args)
 
         if ft ==? 'python'
             let shell_cmd = s:construct_python_db_build_cmd(db_path)
+        elseif ft ==? 'javascript'
+            let shell_cmd = s:construct_javascript_db_build_cmd(db_path)
         else
             echom 'No Command For Building ' . ft . ' DB'
             continue
