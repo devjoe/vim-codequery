@@ -255,12 +255,7 @@ function! s:prettify_qf_layout_and_map_keys(results)
 endfunction
 
 
-function! s:do_grep(word)
-    if empty(a:word)
-        echom 'Invalid Search Term: ' . a:word
-        return
-    endif
-
+function! s:create_grep_options(word)
     if s:fuzzy
         let fuzzy_option = '-f'
         let word = '"' . a:word . '"'
@@ -298,6 +293,24 @@ function! s:do_grep(word)
         return
     endif
 
+    return [grepformat, grepprg]
+endfunction
+
+
+function! s:do_query(word)
+    if empty(a:word)
+        echom 'Invalid Search Term: ' . a:word
+        return
+    endif
+
+    let grep_options = s:create_grep_options(a:word)
+    if empty(grep_options)
+        return
+    endif
+    let [grepformat, grepprg] = grep_options
+
+    " TODO: Rewrite it when Vim8 is coming
+    " ----------------------------------------------------------------
     let grepcmd = s:append_to_quickfix ? 'grepadd!' : 'grep!'
     let l:grepprg_bak    = &l:grepprg
     let l:grepformat_bak = &grepformat
@@ -320,6 +333,7 @@ function! s:do_grep(word)
         let s:last_query_word = a:word
         let s:last_query_fuzzy = s:fuzzy
     endtry
+    " ----------------------------------------------------------------
 endfunction
 
 
@@ -450,7 +464,7 @@ function! s:run_codequery(args)
     let cword = s:get_valid_cursor_word()
 
     if args_num == 0
-        call s:do_grep(cword)
+        call s:do_query(cword)
 
     elseif index(s:query_subcommands, args[0]) != -1
         call s:set_options(args)
@@ -467,7 +481,7 @@ function! s:run_codequery(args)
             return
         endif
 
-        call s:do_grep(iword)
+        call s:do_query(iword)
     else
         echom 'Wrong Subcommand !'
     endif
@@ -504,6 +518,8 @@ function! s:make_codequery_db(args)
             continue
         endif
 
+        " TODO: Rewrite it when Vim8 is coming
+        " ----------------------------------------------------------------
         if exists(':Start')
             silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
             redraw!
@@ -512,6 +528,7 @@ function! s:make_codequery_db(args)
             silent execute '!' . shell_cmd
             redraw!
         endif
+        " ----------------------------------------------------------------
     endfor
 endfunction
 
