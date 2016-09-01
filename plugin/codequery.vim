@@ -4,7 +4,15 @@
 " =============================================================================
 " Options
 
-let g:codequery_text_cmd = 'Ack!'
+" Init with default value
+let g:codequery_find_text_cmd = 'Ack!'
+
+
+" No need to init
+"let g:codequery_build_python_db_cmd = ''
+"let g:codequery_build_javascript_db_cmd = ''
+"let g:codequery_build_ruby_db_cmd = ''
+"let g:codequery_build_go_db_cmd = ''
 
 
 
@@ -72,14 +80,14 @@ endfunction
 " `lcd` brings side effect !! 
 function! s:find_db_path(filetype)
     let db_name = a:filetype . '.db'
-    let lookup_path = findfile(expand('%:h') . '/' . db_name, '.')
+    let lookup_path = findfile(expand('%:p:h') . '/' . db_name, '.')
 
     if !empty(lookup_path)
-        lcd %:h
+        lcd %:p:h
         return lookup_path
     endif
 
-    lcd %:h
+    lcd %:p:h
     let git_root_dir = systemlist('git rev-parse --show-toplevel')[0]
     if !v:shell_error
         let lookup_path = findfile(git_root_dir . '/' . db_name, '.')
@@ -120,7 +128,8 @@ function! s:construct_python_db_build_cmd(db_path)
                   \ pycscope_cmd . ' && ' .
                   \ ctags_cmd . ' && ' .
                   \ cqmakedb_cmd
-    return shell_cmd
+
+    return exists('g:codequery_build_python_db_cmd') ? g:codequery_build_python_db_cmd : shell_cmd
 endfunction
 
 
@@ -131,7 +140,8 @@ function! s:construct_javascript_db_build_cmd(db_path)
                      \ '" -c ./javascript_cscope.out -t ./javascript_tags -p'
 
     let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
-    return shell_cmd
+
+    return exists('g:codequery_build_javascript_db_cmd') ? g:codequery_build_javascript_db_cmd : shell_cmd
 endfunction
 
 
@@ -142,7 +152,7 @@ function! s:construct_ruby_db_build_cmd(db_path)
                      \ '" -c ./ruby_cscope.out -t ./ruby_tags -p'
 
     let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
-    return shell_cmd
+    return exists('g:codequery_build_ruby_db_cmd') ? g:codequery_build_ruby_db_cmd : shell_cmd
 endfunction
 
 
@@ -153,7 +163,7 @@ function! s:construct_go_db_build_cmd(db_path)
                      \ '" -c ./go_cscope.out -t ./go_tags -p'
 
     let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
-    return shell_cmd
+    return exists('g:codequery_build_go_db_cmd') ? g:codequery_build_go_db_cmd : shell_cmd
 endfunction
 
 
@@ -276,7 +286,7 @@ function! s:do_grep(word)
             \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
 
     elseif s:querytype == s:subcmd_map['Text']
-        silent execute g:codequery_text_cmd . ' ' . a:word
+        silent execute g:codequery_find_text_cmd . ' ' . a:word
         call s:prettify_qf_layout_and_map_keys(getqflist())
 
         let s:last_query_word = a:word
