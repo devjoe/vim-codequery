@@ -135,6 +135,28 @@ function! s:construct_javascript_db_build_cmd(db_path)
 endfunction
 
 
+function! s:construct_ruby_db_build_cmd(db_path)
+    let starscope_cmd = 'starscope --force-update -e ctags -e cscope **/*.rb'
+    let rename_cmd = 'mv tags ruby_tags && mv cscope.out ruby_cscope.out'
+    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path .
+                     \ '" -c ./ruby_cscope.out -t ./ruby_tags -p'
+
+    let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
+    return shell_cmd
+endfunction
+
+
+function! s:construct_go_db_build_cmd(db_path)
+    let starscope_cmd = 'starscope --force-update -e ctags -e cscope **/*.go'
+    let rename_cmd = 'mv tags go_tags && mv cscope.out go_cscope.out'
+    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path .
+                     \ '" -c ./go_cscope.out -t ./go_tags -p'
+
+    let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
+    return shell_cmd
+endfunction
+
+
 function! s:is_valid_word(word)
     return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_|*|?]+$')) > 0
 endfunction
@@ -463,6 +485,10 @@ function! s:make_codequery_db(args)
             let shell_cmd = s:construct_python_db_build_cmd(db_path)
         elseif ft ==? 'javascript'
             let shell_cmd = s:construct_javascript_db_build_cmd(db_path)
+        elseif ft ==? 'ruby'
+            let shell_cmd = s:construct_ruby_db_build_cmd(db_path)
+        elseif ft ==? 'go'
+            let shell_cmd = s:construct_go_db_build_cmd(db_path)
         else
             echom 'No Command For Building ' . ft . ' DB'
             continue
@@ -518,7 +544,7 @@ function! s:move_codequery_db_to_git_hidden_dir(args)
             let new_db_path = git_root_dir . '/.git/codequery/' . db_name
             call system('mkdir -p ' . git_root_dir . '/.git/codequery/')
             call system('mv ' . db_path . ' ' . new_db_path)
-            echom '(' . ft . ') DB Done'
+            echom 'Done (' . ft . ')'
         else
             echom 'Git Dir Not Found or (' . ft . ') DB Not Found'
         endif
