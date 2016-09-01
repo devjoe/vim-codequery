@@ -111,16 +111,11 @@ endfunction
 
 
 function! s:construct_python_db_build_cmd(db_path)
-    let cscope_file = 'python_cscope.files'
-    let cscopeout_file = 'python_cscope.out'
-    let tags_file = 'python_tags'
-
-    let find_cmd = 'find . -iname "*.py" > ' . cscope_file
-    let pycscope_cmd = 'pycscope -f "' . cscopeout_file . '" -i ' . cscope_file
-    let ctags_cmd = 'ctags --fields=+i -n -R -f "' .
-                    \ tags_file . '" -L ' . cscope_file
-    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path . '" -c ' . cscopeout_file .
-                       \ ' -t ' . tags_file . ' -p'
+    let find_cmd = 'find . -iname "*.py" > python_cscope.files'
+    let pycscope_cmd = 'pycscope -f "python_cscope.out" -i python_cscope.files'
+    let ctags_cmd = 'ctags --fields=+i -n -R -f "python_tags" -L python_cscope.files'
+    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path . '" -c python_cscope.out' .
+                     \ ' -t python_tags -p'
     let shell_cmd = find_cmd . ' && ' .
                   \ pycscope_cmd . ' && ' .
                   \ ctags_cmd . ' && ' .
