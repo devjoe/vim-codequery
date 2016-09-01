@@ -5,6 +5,14 @@
 > Choose what you want to know! 😼
      
   <br>  
+```vim
+" Open menu
+:CodeQueryMenu Unite Full
+
+" Or query directly
+:CodeQuery Definition get_user_id
+```
+  <br>  
   <br>
 
 # vim-codequery
@@ -24,12 +32,12 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 <br>
 
 ##  Supported languages
-  * [X] `Python` (in beta: **give it a try! 😎**)
-  * [ ] `Javascript` (coming soon)
-  * [ ] `Ruby` (coming soon)
-  * [ ] `Go` (coming soon)
-  * [ ] `Java` (coming later)
-  * [ ] `C, C++` (coming very later)  
+  * [x] `Python` 😎
+  * [x] `Javascript`
+  * [x] `Ruby`
+  * [x] `Go` 
+  * [ ] `Java` (coming very soon)
+  * [ ] `C, C++` (coming very soon)  
   
 <br>
   
@@ -49,13 +57,15 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
   
 ## Schedule
 
-> **This project is still under development.**   
+> **This project is almost ready to be released.**   
+> Main TODO:
+> * Use Vim8's new features to enhance usability.
+> * Do lazy-loading.
+> * Support Java, C, C++.
 >  
-> Completeness: 70%  
-> v1.0 Release Date: Mid-September
->  
-> If you are a pythoner, it is ready for you to use. Try it!  
-> This plugin will support Javascript/Ruby/Go ASAP.
+> Completeness: 90%  
+> v1.0 Release Date: Mid-September  
+> It is Ok to try it! 👌  
   
 <br>
   
@@ -90,12 +100,15 @@ echo mkdir mv cut find awk stat git(optional)
 * Use your favorite plugins manager: [pathogen](https://github.com/tpope/vim-pathogen), [Vundle](https://github.com/VundleVim/Vundle.vim), [Plug](https://github.com/junegunn/vim-plug), [NeoBundle](https://github.com/Shougo/neobundle.vim), [Dein](https://github.com/Shougo/dein.vim),  ...
 * Take Plug as an example:  
 ```vim
-" Highly Recommemded => it helps Vim-CodeQuery to build DB asynchrously without blocking Vim
+" Recommemded => it helps vim-codeQuery to build DB asynchrously without blocking Vim
 Plug 'tpope/vim-dispatch'  
-  
-" Highly Recommemded => if you want to use Unite menu
+   
+" Recommemded => if you don't have an :Ack (or :Ag) liked command => install it !
+Plug 'mileszs/ack.vim'  
+    
+" Highly Recommemded => if you want to use my custom Unite menu
 Plug 'Shougo/unite.vim'  
-  
+   
 " The Must Have One
 Plug 'devjoe/vim-codequery'
 ```
@@ -106,20 +119,16 @@ Plug 'devjoe/vim-codequery'
 
 #### 1. Setup
 
-* Go to the (git) root directory of your project. Then open an arbitrary file with the same file type you want to index under the current directory. For example:  
-<pre>
-readme.md
-setup.py
-foldA
-├── a.py
-├── b.py 
-└── c.py
-</pre>
-In this Python project, you can use `vim setup.py` to open a Python file and then call `:CodeQueryMakeDB` to make CodeQuery DB. If there is no Python file in root directory, you can temporarily open a new one. (like `vim tmp.py`)
-* When the DB file `python.db` (or xxxx.db) and related ctags and cscope files are created, it's ready for you to do searching!  
-    *  Call `:CodeQueryMakeDB` again to update the DB file if you need.
-    *  Vim-CodeQuery will not clean ctags and cscope files, you can use them if you need.
-* Furthermore, if you are also under a git repository, it's recommended you to use `:CodeQueryMoveDBToGitDir` to hide the DB file under `.git/codequery/` directory. If you do so, next time you can call `:CodeQueryMakeDB` in any Python file under the repository to update the DB file.
+* Go to the (git) root directory of your project. Open vim and type:
+```vim
+" Indexing Python files
+:CodeQueryMakeDB python
+" Or indexing Python + Javascript files
+:CodeQueryMakeDB python javascript 
+```
+* That's all! `python.db`, `javascript.db` ... will be created in the root directory. 
+* It's recommended that you should use `:CodeQueryMoveDBToGitDir python` to hide the DB file to `.git/codequery/` directory. If you do so, next time you can call `:CodeQueryMakeDB` directly in any opened Python buffer to rebuild the DB file.
+
 
 #### 2. Search
 * **Find symbol under cursor**  
@@ -133,7 +142,7 @@ In this Python project, you can use `vim setup.py` to open a Python file and the
 ```vim  
 :CodeQuery [SubCommand]  
   
-" Supported SubCommands are: `Symbol, Call, Caller, Callee, Class, Parent, Child, Member, FunctionList, FileImporter`.  
+" Supported SubCommands are: `Symbol, Text, Call, Caller, Callee, Class, Parent, Child, Member, FunctionList, FileImporter`.  
 ```  
 
 * **Find arbitrary word**
@@ -171,23 +180,26 @@ In this Python project, you can use `vim setup.py` to open a Python file and the
 ```
     
 #### 3. Use Quickfix
-* **Move inside Quickfix window to use these key bindings**
+* **Move your cursor inside Quickfix window to use these key bindings**
 
 | Key | Action | Note | 
 | --- | --- | --- | 
-| s | `:CodeQueryAgain Symbol` |
-| c | `:CodeQueryAgain Call` |
-| r | `:CodeQueryAgain Caller` |
-| y | `:CodeQueryAgain Callee` |
-| d | `:CodeQueryAgain Definition` |
-| C | `:CodeQueryAgain Class` |
-| M | `:CodeQueryAgain Member` |
-| P | `:CodeQueryAgain Parent` |
-| D | `:CodeQueryAgain Child` |
-| \ | `:CodeQueryFilter` |
-| p | `<CR><C-W>p` | Preview
-| u | `:colder \| CodeQueryShowQF` | Older Quickfix Result
-| \<C-R> | `:cnewer \| CodeQueryShowQF` | Newer Quickfix Result
+| s | `:CodeQueryAgain Symbol` | |
+| x | `:CodeQueryAgain Text` | use `:Ack!` by default. You can override it by setting `g:codequery_find_text_cmd` | 
+| c | `:CodeQueryAgain Call` | |
+| r | `:CodeQueryAgain Caller` | |
+| e | `:CodeQueryAgain Callee` | |
+| d | `:CodeQueryAgain Definition` | |
+| C | `:CodeQueryAgain Class` | |
+| M | `:CodeQueryAgain Member` | |
+| P | `:CodeQueryAgain Parent` | |
+| D | `:CodeQueryAgain Child` | |
+| m | `:CodeQueryMenu Unite Magic` | |
+| q | `:cclose` | |
+| \ | `:CodeQueryFilter` | |
+| p | `<CR><C-W>p` | Preview |
+| u | `:colder \| CodeQueryShowQF` | Older Quickfix Result | 
+| \<C-R> | `:cnewer \| CodeQueryShowQF` | Newer Quickfix Result | 
 
 
 * **Show Quickfix with above key bindings**
@@ -200,7 +212,7 @@ In this Python project, you can use `vim setup.py` to open a Python file and the
 
 #### 4. Open Menu
 
-Currently, Vim-CodeQuery only provides [Unite](https://github.com/Shougo/unite.vim) menu because I love and use it a lot.  There are two types of menu:
+Currently, vim-codeQuery only provides [Unite](https://github.com/Shougo/unite.vim) menu because I love and use it a lot.  There are two types of menu:
 
 * **Open a complete Unite menu**
 
@@ -213,14 +225,14 @@ Currently, Vim-CodeQuery only provides [Unite](https://github.com/Shougo/unite.v
 ```
 <img src="https://db.tt/j9XrjR4v" align="center" width="400">   
     
-* **Open a necessary Unite menu**
+* **Open a magic Unite menu**
 
 ```vim
 :CodeQueryMenu Unite Magic  
   
 " This menu changes dynamically:
-" 1. Word under cursor is capital (possible be class): remove [F] actions
-" 2. Word under cursor is non-capital (possible be function): remove [C] actions
+" 1. If word under cursor is capital (possible be class): remove [F] actions
+" 2. If word under cursor is non-capital (possible be function): remove [C] actions
 " 3. Show reasonable actions only within Quickfix
 ```
 <img src="https://db.tt/g6ZXMfaY" align="center" width="300">   
