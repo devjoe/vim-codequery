@@ -4,7 +4,6 @@
 <img src="https://db.tt/j9XrjR4v" align="center" width="500">  
 > Choose what you want to know! 😼
      
-  <br>  
 ```vim
 " Open menu
 :CodeQueryMenu Unite Full
@@ -245,7 +244,49 @@ Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.v
 <br>
   
 ## Tips
-
+#### Open Menu Smartly  
+```vim
+nnoremap <space>c :CodeQueryMenu Unite Full<CR>
+nnoremap <space>; :CodeQueryMenu Unite Magic<CR>
+  
+" Or enable typing (to search menu items) by default
+nnoremap <space>\ :CodeQueryMenu Unite Magic<CR>A
+```
+  
+#### Query Smartly  
+```vim
+nnoremap <space><CR> :CodeQuery Symbol<CR>
+  
+" Chain commands! To find possible tests (for python)
+nnoremap <space>t :CodeQuery Caller<CR>:CodeQueryFilter test_<CR>
+```
+  
+#### Load Ctags File
+```vim
+" Set tags option
+set tags=./javascript_tags;/
+set tags+=./python_tags;/
+set tags+=./ruby_tags;/
+set tags+=./go_tags;/
+```
+  
+#### Clean Ctags, Cscope ... Files For Your Languages
+```vim
+" It accpepts a list of your languages written in lowercase
+let g:codequery_enable_auto_clean_languages = ['python']
+```
+  
+#### Custom Database Building
+```vim
+" Make sure to generate a python.db or xxxx.db file as a result
+let g:codequery_build_python_db_cmd = '...'
+let g:codequery_build_javascript_db_cmd = '...'
+let g:codequery_build_ruby_db_cmd = '...'
+let g:codequery_build_go_db_cmd = '...'
+```
+  
+<br>
+  
 ## FAQ 
 
 ## How to Contribute
