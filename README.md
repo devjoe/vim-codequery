@@ -289,6 +289,30 @@ let g:codequery_build_go_db_cmd = '...'
   
 ## FAQ 
 
+#### Why writing this plugin?
+
+> Because I need it. 
+>   
+> I already shared the story of making this plugin in local Python user groups [Taipei.py](http://www.meetup.com/Taipei-py/) and [Tainan.py](http://www.meetup.com/Tainan-py-Python-Tainan-User-Group/).  
+> Slides are available here: [Taipei.py](http://www.slideshare.net/excusemejoe/joe-vim-plugin-taipeipy20160825) / [Tainan.py](http://www.slideshare.net/excusemejoe/vim-plugin-20160827) (Language: Traditional Chinese)
+  
+#### Why not using Ctags or Cscope directly?
+  
+> Read what @ruben2020 the author of CodeQuery said: [Link](https://github.com/ruben2020/codequery#how-is-it-different-from-cscope-and-ctags-what-are-the-advantages)   
+> 
+> In addittion, vim-codequery provides: 
+>   
+> 1. Good interface.
+> 2. Separated Database Management Mechanism.  
+> (You can open as many projects as you wish in a single Vim session without worrying about messing up Ctags or Cscope files or getting wrong result!) 
+>    
+> for Vim users.
+  
+#### More Questions
+
+> Ask [here](https://docs.google.com/document/d/1gIvP9wrp1i3xLPDEKNVy76gUeYt1QkIUoqSvJDEbOfM/edit?usp=sharing) or create an issue. 
+
+
 ## How to Contribute
 
 ## Credits
