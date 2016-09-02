@@ -325,7 +325,7 @@ let g:codequery_build_go_db_cmd = '...'
   
 #### Star It
 
-> If you like it. 
+> If you like it. 👍
    
 <br>
    
