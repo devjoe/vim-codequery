@@ -13,7 +13,7 @@ let g:codequery_find_text_cmd = 'Ack!'
 "let g:codequery_build_javascript_db_cmd = ''
 "let g:codequery_build_ruby_db_cmd = ''
 "let g:codequery_build_go_db_cmd = ''
-
+"let g:codequery_enable_auto_clean_languages = []
 
 
 " =============================================================================
@@ -129,6 +129,11 @@ function! s:construct_python_db_build_cmd(db_path)
                   \ ctags_cmd . ' && ' .
                   \ cqmakedb_cmd
 
+    if exists('g:codequery_enable_auto_clean_languages') &&
+     \ index(g:codequery_enable_auto_clean_languages, 'python') != -1
+        let shell_cmd .= '&& rm python_cscope.files python_cscope.out python_tags'
+    endif
+
     return exists('g:codequery_build_python_db_cmd') ? g:codequery_build_python_db_cmd : shell_cmd
 endfunction
 
@@ -141,6 +146,11 @@ function! s:construct_javascript_db_build_cmd(db_path)
 
     let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
 
+    if exists('g:codequery_enable_auto_clean_languages') &&
+     \ index(g:codequery_enable_auto_clean_languages, 'javascript') != -1
+        let shell_cmd .= ' && rm javascript_cscope.out javascript_tags .starscope.db'
+    endif
+
     return exists('g:codequery_build_javascript_db_cmd') ? g:codequery_build_javascript_db_cmd : shell_cmd
 endfunction
 
@@ -152,6 +162,12 @@ function! s:construct_ruby_db_build_cmd(db_path)
                      \ '" -c ./ruby_cscope.out -t ./ruby_tags -p'
 
     let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
+
+    if exists('g:codequery_enable_auto_clean_languages') &&
+     \ index(g:codequery_enable_auto_clean_languages, 'ruby') != -1
+        let shell_cmd .= ' && rm ruby_cscope.out ruby_tags .starscope.db'
+    endif
+
     return exists('g:codequery_build_ruby_db_cmd') ? g:codequery_build_ruby_db_cmd : shell_cmd
 endfunction
 
@@ -163,6 +179,12 @@ function! s:construct_go_db_build_cmd(db_path)
                      \ '" -c ./go_cscope.out -t ./go_tags -p'
 
     let shell_cmd = starscope_cmd . ' && ' . rename_cmd . ' && ' . cqmakedb_cmd
+
+    if exists('g:codequery_enable_auto_clean_languages') &&
+     \ index(g:codequery_enable_auto_clean_languages, 'go') != -1
+        let shell_cmd .= ' && rm go_cscope.out go_tags .starscope.db'
+    endif
+
     return exists('g:codequery_build_go_db_cmd') ? g:codequery_build_go_db_cmd : shell_cmd
 endfunction
 
