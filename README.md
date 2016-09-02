@@ -58,6 +58,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 ## Schedule
 
 > **This project is almost ready to be released.**   
+>  
 > Main TODO:
 > * Use Vim8's new features to enhance usability.
 > * Do lazy-loading.
@@ -65,6 +66,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 >  
 > Completeness: 90%  
 > v1.0 Release Date: Mid-September  
+>  
 > It is Ok to try it! 👌  
   
 <br>
@@ -100,7 +102,7 @@ echo mkdir mv cut find awk stat git(optional)
 * Use your favorite plugins manager: [pathogen](https://github.com/tpope/vim-pathogen), [Vundle](https://github.com/VundleVim/Vundle.vim), [Plug](https://github.com/junegunn/vim-plug), [NeoBundle](https://github.com/Shougo/neobundle.vim), [Dein](https://github.com/Shougo/dein.vim),  ...
 * Take Plug as an example:  
 ```vim
-" Recommemded => it helps vim-codeQuery to build DB asynchrously without blocking Vim
+" Recommemded => it helps vim-codequery to build DB asynchrously without blocking Vim
 Plug 'tpope/vim-dispatch'  
    
 " Recommemded => if you don't have an :Ack (or :Ag) liked command => install it !
@@ -123,6 +125,7 @@ Plug 'devjoe/vim-codequery'
 ```vim
 " Indexing Python files
 :CodeQueryMakeDB python
+  
 " Or indexing Python + Javascript files
 :CodeQueryMakeDB python javascript 
 ```
@@ -185,7 +188,7 @@ Plug 'devjoe/vim-codequery'
 | Key | Action | Note | 
 | --- | --- | --- | 
 | s | `:CodeQueryAgain Symbol` | |
-| x | `:CodeQueryAgain Text` | use `:Ack!` by default. You can override it by setting `g:codequery_find_text_cmd` | 
+| x | `:CodeQueryAgain Text` | use `:Ack!` by default. #1 | 
 | c | `:CodeQueryAgain Call` | |
 | r | `:CodeQueryAgain Caller` | |
 | e | `:CodeQueryAgain Callee` | |
@@ -200,19 +203,21 @@ Plug 'devjoe/vim-codequery'
 | p | `<CR><C-W>p` | Preview |
 | u | `:colder \| CodeQueryShowQF` | Older Quickfix Result | 
 | \<C-R> | `:cnewer \| CodeQueryShowQF` | Newer Quickfix Result | 
-
+  
+>  #1 
+> You can override `g:codequery_find_text_cmd` to change it.
 
 * **Show Quickfix with above key bindings**
 
 ```vim
 :CodeQueryShowQF  
   
-" This command also works for standard Quickfix result
+" This command can also be used to **patch** standard Quickfix.
 ```
 
 #### 4. Open Menu
 
-Currently, vim-codeQuery only provides [Unite](https://github.com/Shougo/unite.vim) menu because I love and use it a lot.  There are two types of menu:
+Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.vim) menu because I love and use it a lot ⭐.  There are two types of menu:
 
 * **Open a complete Unite menu**
 
