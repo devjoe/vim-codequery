@@ -286,7 +286,7 @@ function! s:create_grep_options(word)
         let word = a:word
     endif
 
-    let pipeline_script_option = ' \| cut -f 2,3'
+    let pipeline_script_option = ' | cut -f 2,3'
 
     let grepformat = '%f:%l%m'
     let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
@@ -300,7 +300,7 @@ function! s:create_grep_options(word)
          \ s:querytype == s:subcmd_map['Caller'] ||
          \ s:querytype == s:subcmd_map['Member']
         let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
-            \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
+            \ . word . ' -u ' . fuzzy_option . ' | awk ''{ print $2 " " $1 }'''
 
     elseif s:querytype == s:subcmd_map['Text']
         silent execute g:codequery_find_text_cmd . ' ' . a:word
@@ -319,6 +319,17 @@ function! s:create_grep_options(word)
 endfunction
 
 
+function! MakeCallBack()
+    let results = getqflist()
+    call s:prettify_qf_layout_and_map_keys(results)
+    if !empty(results)
+        echom 'Found ' . len(results) . ' results'
+    else
+        echom 'Result Not Found'
+    endif
+endfunction
+
+
 function! s:do_query(word)
     if empty(a:word)
         echom 'Invalid Search Term: ' . a:word
@@ -329,29 +340,32 @@ function! s:do_query(word)
     if empty(grep_options)
         return
     endif
-    let [grepformat, grepprg] = grep_options
+    let [errorformat, makeprg] = grep_options
 
     " TODO: Rewrite it when Vim8 is coming
     " ----------------------------------------------------------------
-    let grepcmd = s:append_to_quickfix ? 'grepadd!' : 'grep!'
-    let l:grepprg_bak    = &l:grepprg
-    let l:grepformat_bak = &grepformat
+    "let grepcmd = s:append_to_quickfix ? 'grepadd!' : 'grep!'
+    let l:makeprg_bak    = &l:makeprg
+    let l:errorformat_bak = &l:errorformat
     try
-        let &l:grepformat = grepformat
-        let &l:grepprg = grepprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
-        silent execute grepcmd
-        redraw!
+        augroup YOYO
+            autocmd!
+            autocmd QuickFixCmdPost cgetfile execute 'silent! call MakeCallBack()'
+        augroup END
 
-        let results = getqflist()
-        call s:prettify_qf_layout_and_map_keys(results)
-        if !empty(results)
-            echom 'Found ' . len(results) . ' results'
-        else
-            echom 'Result Not Found'
-        endif
+        let &l:errorformat = errorformat
+        "let &l:makeprg = makeprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
+        let &l:makeprg = makeprg . ' | awk "{ sub(/.*\/\.\//,x) }1"'
+        echom &l:makeprg
+        silent execute 'Make!'
+        "redraw!
+        "sleep 1
+
+
+        "call MakeCallBack()
     finally
-        let &l:grepprg  = l:grepprg_bak
-        let &grepformat = l:grepformat_bak
+        let &l:makeprg  = l:makeprg_bak
+        let &l:errorformat = l:errorformat_bak
         let s:last_query_word = a:word
         let s:last_query_fuzzy = s:fuzzy
     endtry
