@@ -311,8 +311,32 @@ let g:codequery_build_go_db_cmd = '...'
 #### More Questions
 
 > Ask [here](https://docs.google.com/document/d/1gIvP9wrp1i3xLPDEKNVy76gUeYt1QkIUoqSvJDEbOfM/edit?usp=sharing) or create an issue. 
-
-
+   
+<br>
+   
 ## How to Contribute
+#### Use It
 
+> And give me [feedback](https://goo.gl/forms/9r8sOS6xTCBjNQEW2) or [bug report](https://docs.google.com/spreadsheets/d/1eSweAzJKYdzeNdTUVfhujEAOy1RHq1_bEBSX8DQ6xvA/edit?usp=sharing).
+
+#### Fork It
+
+> And give me PR. It would be better if you open an [issue](https://github.com/devjoe/vim-codequery/issues) and discuss with me before sending PR.
+  
+#### Star It
+
+> If you like it. 
+   
+<br>
+   
 ## Credits
+
+Thank all for working on these great projects! 👏
+
+* [CodeQuery](https://github.com/ruben2020/codequery)
+* [Starscope](https://github.com/eapache/starscope)
+* [PyCscope](https://github.com/portante/pycscope)
+* [Unite.vim](https://github.com/Shougo/unite.vim)
+* [dispatch.vim](https://github.com/tpope/vim-dispatch)
+* [ack.vim](https://github.com/mileszs/ack.vim)
+* [vim-addon-qf-layout](https://github.com/MarcWeber/vim-addon-qf-layout)
