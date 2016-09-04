@@ -286,7 +286,7 @@ function! s:create_grep_options(word)
         let word = a:word
     endif
 
-    let pipeline_script_option = ' \| cut -f 2,3'
+    let pipeline_script_option = ' | cut -f 2,3'
 
     let grepformat = '%f:%l%m'
     let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
@@ -300,7 +300,7 @@ function! s:create_grep_options(word)
          \ s:querytype == s:subcmd_map['Caller'] ||
          \ s:querytype == s:subcmd_map['Member']
         let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
-            \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
+            \ . word . ' -u ' . fuzzy_option . " | awk '{ print $2 " " $1 }'"
 
     elseif s:querytype == s:subcmd_map['Text']
         silent execute g:codequery_find_text_cmd . ' ' . a:word
@@ -319,6 +319,25 @@ function! s:create_grep_options(word)
 endfunction
 
 
+function! DoGrepCallback(job, status)
+    execute 'silent! cgetbuffer ' . g:codequery_grep_buf_num
+    execute g:codequery_grep_buf_num . 'bufdo %delete'
+
+    let results = getqflist()
+    call s:prettify_qf_layout_and_map_keys(results)
+    if !empty(results)
+        echom 'Found ' . len(results) . ' results'
+    else
+        echom 'Result Not Found'
+    endif
+endfunction
+
+
+function! CheckJob(timer)
+    call job_status(s:job)
+endfunction
+
+
 function! s:do_query(word)
     if empty(a:word)
         echom 'Invalid Search Term: ' . a:word
@@ -334,27 +353,28 @@ function! s:do_query(word)
     " TODO: Rewrite it when Vim8 is coming
     " ----------------------------------------------------------------
     let grepcmd = s:append_to_quickfix ? 'grepadd!' : 'grep!'
-    let l:grepprg_bak    = &l:grepprg
-    let l:grepformat_bak = &grepformat
-    try
-        let &l:grepformat = grepformat
-        let &l:grepprg = grepprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
-        silent execute grepcmd
-        redraw!
+    "let grepprg .= " | awk '{ sub(/.*\/\.\//,x) }1'"
+    "
+    let &errorformat='%f:%l%m'
+    "let &l:makeprg = grepprg
 
-        let results = getqflist()
-        call s:prettify_qf_layout_and_map_keys(results)
-        if !empty(results)
-            echom 'Found ' . len(results) . ' results'
-        else
-            echom 'Result Not Found'
-        endif
-    finally
-        let &l:grepprg  = l:grepprg_bak
-        let &grepformat = l:grepformat_bak
-        let s:last_query_word = a:word
-        let s:last_query_fuzzy = s:fuzzy
-    endtry
+    let current_buf = bufnr('%')
+    let g:codequery_grep_buf_num = bufnr('codequery_grep_buf', 1)
+    execute g:codequery_grep_buf_num . 'bufdo %delete'
+    execute 'buffer ' . current_buf
+
+    let new_list = ['/bin/sh', '-c']
+    call add(new_list, '' . grepprg . '')
+
+    echom string(new_list)
+    let s:job = job_start(new_list, {'out_io': 'buffer',
+                                \'out_name': 'codequery_grep_buf',
+                                \'exit_cb': 'DoGrepCallback'})
+
+    let timer = timer_start(100, 'CheckJob', {'repeat': 5})
+
+    let s:last_query_word = a:word
+    let s:last_query_fuzzy = s:fuzzy
     " ----------------------------------------------------------------
 endfunction
 
