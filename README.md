@@ -331,7 +331,7 @@ let g:codequery_build_go_db_cmd = '...'
    
 ## Credits
 
-Thank all for working on these great projects! 👏
+Thank all for working on these great projects!
 
 * [CodeQuery](https://github.com/ruben2020/codequery)
 * [Starscope](https://github.com/eapache/starscope)
