@@ -67,10 +67,16 @@ let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'DefinitionGroup' : 20 }
 
 
+let s:c_family_filetype_list =
+    \ ['c', 'h', 'cpp', 'cxx', 'cc', 'hpp', 'hxx', 'hh']
+
+
+let s:supported_filetypes = s:c_family_filetype_list +
+    \ ['python', 'javascript', 'go', 'ruby', 'java', 'c', 'cpp']
+
+
 function! s:check_filetype(filetype)
-    let supported_filetypes =
-        \ ['python', 'javascript', 'go', 'ruby', 'java', 'c', 'cpp']
-    if index(supported_filetypes, a:filetype) == -1
+    if index(s:supported_filetypes, a:filetype) == -1
         return 0
     endif
     return 1
@@ -79,7 +85,12 @@ endfunction
 
 " `lcd` brings side effect !! 
 function! s:find_db_path(filetype)
-    let db_name = a:filetype . '.db'
+    if index(s:c_family_filetype_list, a:filetype) != -1
+        let db_name = 'c_family.db'
+    else
+        let db_name = a:filetype . '.db'
+    endif
+
     let lookup_path = findfile(expand('%:p:h') . '/' . db_name, '.')
 
     if !empty(lookup_path)
@@ -208,6 +219,32 @@ function! s:construct_java_db_build_cmd(db_path)
     return exists('g:codequery_build_java_db_cmd') ? g:codequery_build_java_db_cmd : shell_cmd
 endfunction
 
+
+function! s:construct_c_db_build_cmd(db_path)
+    let find_cmd = 'find . -iname "*.c" > c_cscope.files && ' .
+                 \ 'find . -iname "*.h" >> c_cscope.files && ' .
+                 \ 'find . -iname "*.cpp" >> c_cscope.files && ' .
+                 \ 'find . -iname "*.cxx" >> c_cscope.files && ' .
+                 \ 'find . -iname "*.cc" >>  c_cscope.files && ' .
+                 \ 'find . -iname "*.hpp" >> c_cscope.files && ' .
+                 \ 'find . -iname "*.hxx" >> c_cscope.files && ' .
+                 \ 'find . -iname "*.hh" >> c_cscope.files'
+    let cscope_cmd = 'cscope -cbk -i c_cscope.files -f c_cscope.out'
+    let ctags_cmd = 'ctags --fields=+i -n -R -f "c_tags" -L c_cscope.files'
+    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path . '" -c c_cscope.out' .
+                     \ ' -t c_tags -p'
+    let shell_cmd = find_cmd . ' && ' .
+                  \ cscope_cmd . ' && ' .
+                  \ ctags_cmd . ' && ' .
+                  \ cqmakedb_cmd
+
+    if exists('g:codequery_enable_auto_clean_languages') &&
+     \ index(g:codequery_enable_auto_clean_languages, 'c') != -1
+        let shell_cmd .= '&& rm c_cscope.files c_cscope.out c_tags'
+    endif
+
+    return exists('g:codequery_build_c_db_cmd') ? g:codequery_build_c_db_cmd : shell_cmd
+endfunction
 
 function! s:is_valid_word(word)
     return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_|*|?]+$')) > 0
@@ -544,7 +581,11 @@ function! s:make_codequery_db(args)
 
         let db_path = s:find_db_path(ft)
         if empty(db_path)
-            let db_path = ft . '.db'
+            if index(s:c_family_filetype_list, ft) != -1
+                let db_path = 'c_family.db'
+            else
+                let db_path = ft . '.db'
+            endif
         endif
 
         if ft ==? 'python'
@@ -557,8 +598,10 @@ function! s:make_codequery_db(args)
             let shell_cmd = s:construct_go_db_build_cmd(db_path)
         elseif ft ==? 'java'
             let shell_cmd = s:construct_java_db_build_cmd(db_path)
+        elseif index(s:c_family_filetype_list, ft) != -1
+            let shell_cmd = s:construct_c_db_build_cmd(db_path)
         else
-            echom 'No Command For Building ' . ft . ' DB'
+            echom 'No Command For Building .' . ft . ' file'
             continue
         endif
 
@@ -591,7 +634,11 @@ function! s:view_codequery_db(args)
 
         let db_path = s:find_db_path(ft)
         if empty(db_path)
-            execute '!echo "\n(' . ft . ') DB Not Found"'
+            if index(s:c_family_filetype_list, ft) != -1
+                execute '!echo "\n(c family) DB Not Found"'
+            else
+                execute '!echo "\n(' . ft . ') DB Not Found"'
+            endif
             continue
         endif
 
@@ -607,7 +654,11 @@ function! s:move_codequery_db_to_git_hidden_dir(args)
     endif
 
     for ft in args
-        let db_name = ft . '.db'
+        if index(s:c_family_filetype_list, ft) != -1
+            let db_name = 'c_family.db'
+        else
+            let db_name = ft . '.db'
+        endif
         let git_root_dir = systemlist('git rev-parse --show-toplevel')[0]
         let db_path = s:find_db_path(ft)
 
@@ -615,9 +666,9 @@ function! s:move_codequery_db_to_git_hidden_dir(args)
             let new_db_path = git_root_dir . '/.git/codequery/' . db_name
             call system('mkdir -p ' . git_root_dir . '/.git/codequery/')
             call system('mv ' . db_path . ' ' . new_db_path)
-            echom 'Done (' . ft . ')'
+            echom 'Done (' . db_name . ')'
         else
-            echom 'Git Dir Not Found or (' . ft . ') DB Not Found'
+            echom 'Git Dir Not Found or (' . db_name . ') Not Found'
         endif
     endfor
 endfunction
