@@ -35,8 +35,8 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
   * [x] `Javascript`
   * [x] `Ruby`
   * [x] `Go` 
-  * [ ] `Java` (coming very soon)
-  * [ ] `C, C++` (coming very soon)  
+  * [x] `Java`
+  * [x] `C, C++`
   
 <br>
   
@@ -61,9 +61,9 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 > Main TODO:
 > * Use Vim8's new features to enhance usability.
 > * Do lazy-loading.
-> * Support Java, C, C++.
+> * Fix some bugs
 >  
-> Completeness: 90%  
+> Completeness: 92%  
 > v1.0 Release Date: Mid-September  
 >  
 > It is Ok to try it! 👌  
@@ -268,6 +268,8 @@ set tags=./javascript_tags;/
 set tags+=./python_tags;/
 set tags+=./ruby_tags;/
 set tags+=./go_tags;/
+set tags+=./java_tags;/
+set tags+=./c_tags;/
 ```
   
 #### Clean Ctags, Cscope ... Files For Your Languages
@@ -282,7 +284,9 @@ let g:codequery_enable_auto_clean_languages = ['python']
 let g:codequery_build_python_db_cmd = '...'
 let g:codequery_build_javascript_db_cmd = '...'
 let g:codequery_build_ruby_db_cmd = '...'
-let g:codequery_build_go_db_cmd = '...'
+let g:codequery_build_go_db_cmd = '...'  
+let g:codequery_build_java_db_cmd = '...'  
+let g:codequery_build_c_db_cmd = '...'  
 ```
   
 <br>
