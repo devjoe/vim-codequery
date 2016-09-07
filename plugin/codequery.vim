@@ -13,6 +13,8 @@ let g:codequery_find_text_cmd = 'Ack!'
 "let g:codequery_build_javascript_db_cmd = ''
 "let g:codequery_build_ruby_db_cmd = ''
 "let g:codequery_build_go_db_cmd = ''
+"let g:codequery_build_java_db_cmd = ''
+"let g:codequery_build_c_db_cmd = ''
 "let g:codequery_enable_auto_clean_languages = []
 
 
