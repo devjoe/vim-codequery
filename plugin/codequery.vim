@@ -189,6 +189,26 @@ function! s:construct_go_db_build_cmd(db_path)
 endfunction
 
 
+function! s:construct_java_db_build_cmd(db_path)
+    let find_cmd = 'find . -iname "*.java" > java_cscope.files'
+    let cscope_cmd = 'cscope -cbR -i java_cscope.files -f java_cscope.out'
+    let ctags_cmd = 'ctags --fields=+i -n -R -f "java_tags" -L java_cscope.files'
+    let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path . '" -c java_cscope.out' .
+                     \ ' -t java_tags -p'
+    let shell_cmd = find_cmd . ' && ' .
+                  \ cscope_cmd . ' && ' .
+                  \ ctags_cmd . ' && ' .
+                  \ cqmakedb_cmd
+
+    if exists('g:codequery_enable_auto_clean_languages') &&
+     \ index(g:codequery_enable_auto_clean_languages, 'java') != -1
+        let shell_cmd .= '&& rm java_cscope.files java_cscope.out java_tags'
+    endif
+
+    return exists('g:codequery_build_java_db_cmd') ? g:codequery_build_java_db_cmd : shell_cmd
+endfunction
+
+
 function! s:is_valid_word(word)
     return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_|*|?]+$')) > 0
 endfunction
@@ -535,6 +555,8 @@ function! s:make_codequery_db(args)
             let shell_cmd = s:construct_ruby_db_build_cmd(db_path)
         elseif ft ==? 'go'
             let shell_cmd = s:construct_go_db_build_cmd(db_path)
+        elseif ft ==? 'java'
+            let shell_cmd = s:construct_java_db_build_cmd(db_path)
         else
             echom 'No Command For Building ' . ft . ' DB'
             continue
