@@ -13,8 +13,7 @@ let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'Child'           : 11,
                    \ 'FunctionList'    : 13,
                    \ 'FileImporter'    : 4,
-                   \ 'Text'            : 21,
-                   \ 'DefinitionGroup' : 20 }
+                   \ 'Text'            : 21 }
 
 
 function! s:create_grep_options(word) abort
@@ -48,10 +47,6 @@ function! s:create_grep_options(word) abort
 
         let g:codequery_last_query_word = a:word
         let g:last_query_fuzzy = g:codequery_fuzzy
-        return
-
-    elseif g:codequery_querytype == s:subcmd_map['DefinitionGroup']
-        echom 'Not Implement !'
         return
     endif
 

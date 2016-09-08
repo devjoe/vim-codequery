@@ -36,7 +36,7 @@ command! -nargs=0 CodeQueryShowQF call
             \ codequery#query#prettify_qf_layout_and_map_keys(getqflist())
 
 let g:codequery_subcommands = [ 'Symbol', 'Text',
-                    \ 'Definition', 'DefinitionGroup',
+                    \ 'Definition',
                     \ 'Caller', 'Callee', 'Call',
                     \ 'Class', 'Member', 'Parent', 'Child',
                     \ 'FunctionList',
