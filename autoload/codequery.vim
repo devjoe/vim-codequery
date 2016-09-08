@@ -33,12 +33,23 @@ function! s:set_db() abort
 endfunction
 
 
+function! s:save_cwd() abort
+    let g:codequery_cwd = getcwd()
+endfunction
+
+
+function! s:restore_cwd() abort
+    execute 'lcd ' . g:codequery_cwd
+endfunction
+
+
 
 " =============================================================================
 " Entries
 
 
 function! codequery#run_codequery(args) abort
+    call s:save_cwd()
     if !s:check_filetype(&filetype)
         echom 'Not Supported Filetype: ' . &filetype
         return
@@ -50,6 +61,7 @@ function! codequery#run_codequery(args) abort
     let g:codequery_querytype = 1
     let g:codequery_db_path = ''
     if !s:set_db()
+        call s:restore_cwd()
         return
     endif
 
@@ -66,6 +78,7 @@ function! codequery#run_codequery(args) abort
         let word = codequery#query#get_final_query_word(iword, cword)
         if empty(word)
             echom 'Invalid Args: ' . a:args
+            call s:restore_cwd()
             return
         endif
 
@@ -73,10 +86,12 @@ function! codequery#run_codequery(args) abort
     else
         echom 'Wrong Subcommand !'
     endif
+    call s:restore_cwd()
 endfunction
 
 
 function! codequery#make_codequery_db(args) abort
+    call s:save_cwd()
     let args = split(a:args, ' ')
     if empty(args)
         let args = [&filetype]
@@ -126,10 +141,12 @@ function! codequery#make_codequery_db(args) abort
         endif
         " ----------------------------------------------------------------
     endfor
+    call s:restore_cwd()
 endfunction
 
 
 function! codequery#view_codequery_db(args) abort
+    call s:save_cwd()
     let args = split(a:args, ' ')
     if empty(args)
         let args = [&filetype]
@@ -153,10 +170,12 @@ function! codequery#view_codequery_db(args) abort
 
         execute '!echo "\n(' . db_path . ') is update at: "  &&  stat -f "\%Sm" ' . db_path
     endfor
+    call s:restore_cwd()
 endfunction
 
 
 function! codequery#move_codequery_db_to_git_hidden_dir(args) abort
+    call s:save_cwd()
     let args = split(a:args, ' ')
     if empty(args)
         let args = [&filetype]
@@ -180,6 +199,7 @@ function! codequery#move_codequery_db_to_git_hidden_dir(args) abort
             echom 'Git Dir Not Found or (' . db_name . ') Not Found'
         endif
     endfor
+    call s:restore_cwd()
 endfunction
 
 
