@@ -38,8 +38,9 @@ function! s:save_cwd() abort
 endfunction
 
 
-function! s:restore_cwd() abort
+function! s:restore_cwd()
     execute 'lcd ' . g:codequery_cwd
+    let g:codequery_cwd = ''
 endfunction
 
 

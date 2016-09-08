@@ -42,12 +42,8 @@ function! s:create_grep_options(word) abort
             \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
 
     elseif g:codequery_querytype == s:subcmd_map['Text']
-        silent execute g:codequery_find_text_cmd . ' ' . a:word
-        call codequery#query#prettify_qf_layout_and_map_keys(getqflist())
-
-        let g:codequery_last_query_word = a:word
-        let g:last_query_fuzzy = g:codequery_fuzzy
-        return
+        let grepformat = ''
+        let grepprg = g:codequery_find_text_cmd . ' ' . a:word
     endif
 
     return [grepformat, grepprg]
@@ -104,7 +100,11 @@ endfunction
 " Ref: MarcWeber's vim-addon-qf-layout
 function! codequery#query#prettify_qf_layout_and_map_keys(results) abort
     if &filetype !=# 'qf'
+        if !empty(g:codequery_cwd)
+            execute 'lcd ' . g:codequery_cwd
+        endif
         copen
+        execute 'lcd ' . g:codequery_cwd
     endif
 
     " unlock qf to make changes
@@ -169,10 +169,19 @@ function! codequery#query#do_query(word) abort
     endif
 
     let grep_options = s:create_grep_options(a:word)
-    if empty(grep_options)
+    let [grepformat, grepprg] = grep_options
+
+    " Find Text
+    if empty(grepformat)
+        if g:codequery_find_text_from_current_file_dir == 1
+            lcd %:p:h
+        endif
+        silent execute grepprg
+        call codequery#query#prettify_qf_layout_and_map_keys(getqflist())
+        let g:codequery_last_query_word = a:word
+        let g:last_query_fuzzy = g:codequery_fuzzy
         return
     endif
-    let [grepformat, grepprg] = grep_options
 
     " TODO: Rewrite it when Vim8 is coming
     " ----------------------------------------------------------------
