@@ -47,8 +47,8 @@ function! codequery#menu#use_unite_menu(magic) abort
                                                \ menu_class_cmds)
             let menu_other_cmds = []
             let menu_goto_full = []
-            if exists('g:last_query_word')
-                let cword = g:last_query_word
+            if exists('g:codequery_last_query_word')
+                let cword = g:codequery_last_query_word
             endif
         endif
 

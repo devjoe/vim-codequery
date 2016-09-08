@@ -18,7 +18,7 @@ let s:subcmd_map = { 'Symbol'          : 1,
 
 
 function! s:create_grep_options(word) abort
-    if g:fuzzy
+    if g:codequery_fuzzy
         let fuzzy_option = '-f'
         let word = '"' . a:word . '"'
     else
@@ -29,28 +29,28 @@ function! s:create_grep_options(word) abort
     let pipeline_script_option = ' \| cut -f 2,3'
 
     let grepformat = '%f:%l%m'
-    let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
+    let grepprg = 'cqsearch -s ' . g:codequery_db_path . ' -p ' . g:codequery_querytype . ' -t '
                 \ . word . ' -u ' . fuzzy_option . pipeline_script_option
 
-    if g:querytype == s:subcmd_map['FileImporter']
-        let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
+    if g:codequery_querytype == s:subcmd_map['FileImporter']
+        let grepprg = 'cqsearch -s ' . g:codequery_db_path . ' -p ' . g:codequery_querytype . ' -t '
                     \ . word . ' -u ' . fuzzy_option
 
-    elseif g:querytype == s:subcmd_map['Callee'] ||
-         \ g:querytype == s:subcmd_map['Caller'] ||
-         \ g:querytype == s:subcmd_map['Member']
-        let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
+    elseif g:codequery_querytype == s:subcmd_map['Callee'] ||
+         \ g:codequery_querytype == s:subcmd_map['Caller'] ||
+         \ g:codequery_querytype == s:subcmd_map['Member']
+        let grepprg = 'cqsearch -s ' . g:codequery_db_path . ' -p ' . g:codequery_querytype . ' -t '
             \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
 
-    elseif g:querytype == s:subcmd_map['Text']
+    elseif g:codequery_querytype == s:subcmd_map['Text']
         silent execute g:codequery_find_text_cmd . ' ' . a:word
         call codequery#query#prettify_qf_layout_and_map_keys(getqflist())
 
-        let g:last_query_word = a:word
-        let g:last_query_fuzzy = g:fuzzy
+        let g:codequery_last_query_word = a:word
+        let g:last_query_fuzzy = g:codequery_fuzzy
         return
 
-    elseif g:querytype == s:subcmd_map['DefinitionGroup']
+    elseif g:codequery_querytype == s:subcmd_map['DefinitionGroup']
         echom 'Not Implement !'
         return
     endif
@@ -76,10 +76,10 @@ endfunction
 
 function! codequery#query#get_valid_input_word(args) abort
     let args = deepcopy(a:args)
-    if g:fuzzy
+    if g:codequery_fuzzy
         call remove(args, index(args, '-f'))
     endif
-    if g:append_to_quickfix
+    if g:codequery_append_to_qf
         call remove(args, index(args, '-a'))
     endif
 
@@ -92,9 +92,9 @@ endfunction
 
 
 function! codequery#query#get_final_query_word(iword, cword) abort
-    if empty(a:iword) && g:querytype == s:subcmd_map['FunctionList']
+    if empty(a:iword) && g:codequery_querytype == s:subcmd_map['FunctionList']
         return expand('%')
-    elseif empty(a:iword) && g:querytype == s:subcmd_map['FileImporter']
+    elseif empty(a:iword) && g:codequery_querytype == s:subcmd_map['FileImporter']
         return expand('%:r')
     elseif empty(a:iword) && !empty(a:cword)
         return a:cword
@@ -181,7 +181,7 @@ function! codequery#query#do_query(word) abort
 
     " TODO: Rewrite it when Vim8 is coming
     " ----------------------------------------------------------------
-    let grepcmd = g:append_to_quickfix ? 'grepadd!' : 'grep!'
+    let grepcmd = g:codequery_append_to_qf ? 'grepadd!' : 'grep!'
     let l:grepprg_bak    = &l:grepprg
     let l:grepformat_bak = &grepformat
     try
@@ -200,21 +200,22 @@ function! codequery#query#do_query(word) abort
     finally
         let &l:grepprg  = l:grepprg_bak
         let &grepformat = l:grepformat_bak
-        let g:last_query_word = a:word
-        let g:last_query_fuzzy = g:fuzzy
+        let g:codequery_last_query_word = a:word
+        let g:last_query_fuzzy = g:codequery_fuzzy
     endtry
     " ----------------------------------------------------------------
 endfunction
 
 
 function! codequery#query#set_options(args) abort
-    let g:querytype = get(s:subcmd_map, a:args[0])
+    let g:codequery_querytype = get(s:subcmd_map, a:args[0])
 
     if index(a:args, '-f') != -1
-        let g:fuzzy = 1
+        let g:codequery_fuzzy = 1
     endif
 
     if index(a:args, '-a') != -1
-        let g:append_to_quickfix = 1
+        let g:codequery_append_to_qf = 1
     endif
 endfunction
+

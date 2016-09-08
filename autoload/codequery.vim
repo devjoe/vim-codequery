@@ -28,7 +28,7 @@ function! s:set_db() abort
         return 0
     endif
 
-    let g:db_path = path
+    let g:codequery_db_path = path
     return 1
 endfunction
 
@@ -44,11 +44,11 @@ function! codequery#run_codequery(args) abort
         return
     endif
 
-    let g:last_query_word = ''
-    let g:fuzzy = 0
-    let g:append_to_quickfix = 0
-    let g:querytype = 1
-    let g:db_path = ''
+    let g:codequery_last_query_word = ''
+    let g:codequery_fuzzy = 0
+    let g:codequery_append_to_qf = 0
+    let g:codequery_querytype = 1
+    let g:codequery_db_path = ''
     if !s:set_db()
         return
     endif
@@ -206,9 +206,9 @@ endfunction
 function! codequery#run_codequery_again_with_different_subcmd(args) abort
     let args = split(a:args, ' ')
     let args_num = len(args)
-    if !empty(g:last_query_word) && args_num > 0
+    if !empty(g:codequery_last_query_word) && args_num > 0
         cclose
-        let again_cmd = 'CodeQuery ' . args[0] . ' ' . g:last_query_word . ' '
+        let again_cmd = 'CodeQuery ' . args[0] . ' ' . g:codequery_last_query_word . ' '
                       \ . (g:last_query_fuzzy ? '-f' : '')
         execute again_cmd
     else
