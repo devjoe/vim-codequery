@@ -1,3 +1,6 @@
+" =============================================================================
+" Helpers
+
 
 let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'Definition'      : 2,
@@ -14,17 +17,64 @@ let s:subcmd_map = { 'Symbol'          : 1,
                    \ 'DefinitionGroup' : 20 }
 
 
-function! codequery#query#is_valid_word(word)
+function! s:create_grep_options(word) abort
+    if g:fuzzy
+        let fuzzy_option = '-f'
+        let word = '"' . a:word . '"'
+    else
+        let fuzzy_option = '-e'
+        let word = a:word
+    endif
+
+    let pipeline_script_option = ' \| cut -f 2,3'
+
+    let grepformat = '%f:%l%m'
+    let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
+                \ . word . ' -u ' . fuzzy_option . pipeline_script_option
+
+    if g:querytype == s:subcmd_map['FileImporter']
+        let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
+                    \ . word . ' -u ' . fuzzy_option
+
+    elseif g:querytype == s:subcmd_map['Callee'] ||
+         \ g:querytype == s:subcmd_map['Caller'] ||
+         \ g:querytype == s:subcmd_map['Member']
+        let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
+            \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
+
+    elseif g:querytype == s:subcmd_map['Text']
+        silent execute g:codequery_find_text_cmd . ' ' . a:word
+        call codequery#query#prettify_qf_layout_and_map_keys(getqflist())
+
+        let g:last_query_word = a:word
+        let g:last_query_fuzzy = g:fuzzy
+        return
+
+    elseif g:querytype == s:subcmd_map['DefinitionGroup']
+        echom 'Not Implement !'
+        return
+    endif
+
+    return [grepformat, grepprg]
+endfunction
+
+
+
+" =============================================================================
+" Entries
+
+
+function! codequery#query#is_valid_word(word) abort
     return strlen(matchstr(a:word, '\v^[a-z|A-Z|0-9|_|*|?]+$')) > 0
 endfunction
 
 
-function! codequery#query#get_valid_cursor_word()
+function! codequery#query#get_valid_cursor_word() abort
     return codequery#query#is_valid_word(expand('<cword>')) ? expand('<cword>') : ''
 endfunction
 
 
-function! codequery#query#get_valid_input_word(args)
+function! codequery#query#get_valid_input_word(args) abort
     let args = deepcopy(a:args)
     if g:fuzzy
         call remove(args, index(args, '-f'))
@@ -41,7 +91,7 @@ function! codequery#query#get_valid_input_word(args)
 endfunction
 
 
-function! codequery#query#get_final_query_word(iword, cword)
+function! codequery#query#get_final_query_word(iword, cword) abort
     if empty(a:iword) && g:querytype == s:subcmd_map['FunctionList']
         return expand('%')
     elseif empty(a:iword) && g:querytype == s:subcmd_map['FileImporter']
@@ -50,12 +100,14 @@ function! codequery#query#get_final_query_word(iword, cword)
         return a:cword
     elseif empty(a:iword)
         return ''
+    else
+        return a:iword
     endif
 endfunction
 
 
 " Ref: MarcWeber's vim-addon-qf-layout
-function! codequery#query#prettify_qf_layout_and_map_keys(results)
+function! codequery#query#prettify_qf_layout_and_map_keys(results) abort
     if &filetype !=# 'qf'
         copen
     endif
@@ -115,49 +167,7 @@ function! codequery#query#prettify_qf_layout_and_map_keys(results)
 endfunction
 
 
-function! s:create_grep_options(word)
-    if g:fuzzy
-        let fuzzy_option = '-f'
-        let word = '"' . a:word . '"'
-    else
-        let fuzzy_option = '-e'
-        let word = a:word
-    endif
-
-    let pipeline_script_option = ' \| cut -f 2,3'
-
-    let grepformat = '%f:%l%m'
-    let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
-                \ . word . ' -u ' . fuzzy_option . pipeline_script_option
-
-    if g:querytype == s:subcmd_map['FileImporter']
-        let grepprg = 'cqsearch -s ' . s:db_path . ' -p ' . s:querytype . ' -t '
-                    \ . word . ' -u ' . fuzzy_option
-
-    elseif g:querytype == s:subcmd_map['Callee'] ||
-         \ g:querytype == s:subcmd_map['Caller'] ||
-         \ g:querytype == s:subcmd_map['Member']
-        let grepprg = 'cqsearch -s ' . g:db_path . ' -p ' . g:querytype . ' -t '
-            \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
-
-    elseif g:querytype == s:subcmd_map['Text']
-        silent execute g:codequery_find_text_cmd . ' ' . a:word
-        call codequery#query#prettify_qf_layout_and_map_keys(getqflist())
-
-        let g:last_query_word = a:word
-        let g:last_query_fuzzy = s:fuzzy
-        return
-
-    elseif g:querytype == s:subcmd_map['DefinitionGroup']
-        echom 'Not Implement !'
-        return
-    endif
-
-    return [grepformat, grepprg]
-endfunction
-
-
-function! codequery#query#do_query(word)
+function! codequery#query#do_query(word) abort
     if empty(a:word)
         echom 'Invalid Search Term: ' . a:word
         return
@@ -197,7 +207,7 @@ function! codequery#query#do_query(word)
 endfunction
 
 
-function! codequery#query#set_options(args)
+function! codequery#query#set_options(args) abort
     let g:querytype = get(s:subcmd_map, a:args[0])
 
     if index(a:args, '-f') != -1
@@ -208,9 +218,3 @@ function! codequery#query#set_options(args)
         let g:append_to_quickfix = 1
     endif
 endfunction
-
-
-" =============================================================================
-" Entries
-
-

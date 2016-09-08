@@ -1,8 +1,11 @@
+" =============================================================================
+" Entries
 
-let s:menu_subcommands = [ 'Unite' ]
+
+scriptencoding utf-8
 
 
-function! codequery#patch_unite_magic_menu_from_qf(fre_cmds, fun_cmds, cla_cmds)
+function! codequery#menu#patch_unite_magic_menu_from_qf(fre_cmds, fun_cmds, cla_cmds) abort
     call map(a:fre_cmds, '[substitute(v:val[0], "Find", "Switch To", "g"), v:val[1]]')
     call map(a:fun_cmds, '[substitute(v:val[0], "Find", "Switch To", "g"), v:val[1]]')
     call map(a:cla_cmds, '[substitute(v:val[0], "Find", "Switch To", "g"), v:val[1]]')
@@ -14,8 +17,8 @@ endfunction
 
 
 
-function! codequery:use_unite_menu(magic)
-    let cword = s:get_valid_cursor_word()
+function! codequery#menu#use_unite_menu(magic) abort
+    let cword = codequery#query#get_valid_cursor_word()
     let menu_frequent_cmds = [['▷  Find Symbol', 'CodeQuery Symbol'],
                              \['▷  Find Text', 'CodeQuery Text']]
     let menu_function_cmds = [['▷  Find Function Def.     [F]', 'CodeQuery Definition'],
@@ -39,13 +42,13 @@ function! codequery:use_unite_menu(magic)
 
     if a:magic
         if &filetype ==# 'qf'
-            call codequery#patch_unite_magic_menu_from_qf(menu_frequent_cmds,
+            call codequery#menu#patch_unite_magic_menu_from_qf(menu_frequent_cmds,
                                                \ menu_function_cmds,
                                                \ menu_class_cmds)
             let menu_other_cmds = []
             let menu_goto_full = []
-            if exists('s:last_query_word')
-                let cword = s:last_query_word
+            if exists('g:last_query_word')
+                let cword = g:last_query_word
             endif
         endif
 
@@ -90,6 +93,3 @@ function! codequery:use_unite_menu(magic)
     execute 'Unite -silent -prompt-visible -prompt=::' . cword
                 \ . ':: menu:codequery'
 endfunction
-
-
-

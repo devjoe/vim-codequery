@@ -10,7 +10,10 @@ let s:supported_filetypes = g:c_family_filetype_list +
     \ ['python', 'javascript', 'go', 'ruby', 'java', 'c', 'cpp']
 
 
-function! s:check_filetype(filetype)
+let s:menu_subcommands = [ 'Unite' ]
+
+
+function! s:check_filetype(filetype) abort
     if index(s:supported_filetypes, a:filetype) == -1
         return 0
     endif
@@ -18,7 +21,7 @@ function! s:check_filetype(filetype)
 endfunction
 
 
-function! s:set_db()
+function! s:set_db() abort
     let path = codequery#db#find_db_path(&filetype)
     if empty(path)
         echom 'CodeQuery DB Not Found'
@@ -35,7 +38,7 @@ endfunction
 " Entries
 
 
-function! codequery#run_codequery(args)
+function! codequery#run_codequery(args) abort
     if !s:check_filetype(&filetype)
         echom 'Not Supported Filetype: ' . &filetype
         return
@@ -73,7 +76,7 @@ function! codequery#run_codequery(args)
 endfunction
 
 
-function! s:make_codequery_db(args)
+function! codequery#make_codequery_db(args) abort
     let args = split(a:args, ' ')
     if empty(args)
         let args = [&filetype]
@@ -126,7 +129,7 @@ function! s:make_codequery_db(args)
 endfunction
 
 
-function! s:view_codequery_db(args)
+function! codequery#view_codequery_db(args) abort
     let args = split(a:args, ' ')
     if empty(args)
         let args = [&filetype]
@@ -153,7 +156,7 @@ function! s:view_codequery_db(args)
 endfunction
 
 
-function! s:move_codequery_db_to_git_hidden_dir(args)
+function! codequery#move_codequery_db_to_git_hidden_dir(args) abort
     let args = split(a:args, ' ')
     if empty(args)
         let args = [&filetype]
@@ -180,7 +183,7 @@ function! s:move_codequery_db_to_git_hidden_dir(args)
 endfunction
 
 
-function! s:show_menu(args)
+function! codequery#show_menu(args) abort
     let args = split(a:args, ' ')
     let args_num = len(args)
 
@@ -191,7 +194,7 @@ function! s:show_menu(args)
             else
                 let magic_menu = 0
             endif
-            call s:use_unite_menu(magic_menu)
+            call codequery#menu#use_unite_menu(magic_menu)
             return
         endif
     endif
@@ -200,13 +203,13 @@ function! s:show_menu(args)
 endfunction
 
 
-function! s:run_codequery_again_with_different_subcmd(args)
+function! codequery#run_codequery_again_with_different_subcmd(args) abort
     let args = split(a:args, ' ')
     let args_num = len(args)
-    if !empty(s:last_query_word) && args_num > 0
+    if !empty(g:last_query_word) && args_num > 0
         cclose
-        let again_cmd = 'CodeQuery ' . args[0] . ' ' . s:last_query_word . ' '
-                      \ . (s:last_query_fuzzy ? '-f' : '')
+        let again_cmd = 'CodeQuery ' . args[0] . ' ' . g:last_query_word . ' '
+                      \ . (g:last_query_fuzzy ? '-f' : '')
         execute again_cmd
     else
         echom 'Wrong Subcommands!'
@@ -215,7 +218,7 @@ endfunction
 
 
 " modify from someone's .vimrc
-function! s:filter_qf_results(query)
+function! codequery#filter_qf_results(query) abort
     let results = getqflist()
     for d in results
         if bufname(d['bufnr']) !~ a:query && d['text'] !~ a:query
@@ -223,5 +226,5 @@ function! s:filter_qf_results(query)
         endif
     endfor
     call setqflist(results)
-    call s:prettify_qf_layout_and_map_keys(results)
+    call codequery#query#prettify_qf_layout_and_map_keys(results)
 endfunction

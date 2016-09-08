@@ -1,6 +1,9 @@
+" =============================================================================
+" Entries
+
 
 " `lcd` brings side effect !!
-function! codequery#db#find_db_path(filetype)
+function! codequery#db#find_db_path(filetype) abort
     if index(g:c_family_filetype_list, a:filetype) != -1
         let db_name = 'c_family.db'
     else
@@ -33,7 +36,7 @@ function! codequery#db#find_db_path(filetype)
 endfunction
 
 
-function! s:construct_python_db_build_cmd(db_path)
+function! codequery#db#construct_python_db_build_cmd(db_path) abort
     let find_cmd = 'find . -iname "*.py" > python_cscope.files'
     let pycscope_cmd = 'pycscope -f "python_cscope.out" -i python_cscope.files'
     let ctags_cmd = 'ctags --fields=+i -n -R -f "python_tags" -L python_cscope.files'
@@ -53,7 +56,7 @@ function! s:construct_python_db_build_cmd(db_path)
 endfunction
 
 
-function! s:construct_javascript_db_build_cmd(db_path)
+function! codequery#db#construct_javascript_db_build_cmd(db_path) abort
     let starscope_cmd = 'starscope --force-update -e ctags -e cscope **/*.js'
     let rename_cmd = 'mv tags javascript_tags && mv cscope.out javascript_cscope.out'
     let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path .
@@ -70,7 +73,7 @@ function! s:construct_javascript_db_build_cmd(db_path)
 endfunction
 
 
-function! s:construct_ruby_db_build_cmd(db_path)
+function! codequery#db#construct_ruby_db_build_cmd(db_path) abort
     let starscope_cmd = 'starscope --force-update -e ctags -e cscope **/*.rb'
     let rename_cmd = 'mv tags ruby_tags && mv cscope.out ruby_cscope.out'
     let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path .
@@ -87,7 +90,7 @@ function! s:construct_ruby_db_build_cmd(db_path)
 endfunction
 
 
-function! s:construct_go_db_build_cmd(db_path)
+function! codequery#db#construct_go_db_build_cmd(db_path) abort
     let starscope_cmd = 'starscope --force-update -e ctags -e cscope **/*.go'
     let rename_cmd = 'mv tags go_tags && mv cscope.out go_cscope.out'
     let cqmakedb_cmd = 'cqmakedb -s "' . a:db_path .
@@ -104,7 +107,7 @@ function! s:construct_go_db_build_cmd(db_path)
 endfunction
 
 
-function! s:construct_java_db_build_cmd(db_path)
+function!  codequery#db#construct_java_db_build_cmd(db_path) abort
     let find_cmd = 'find . -iname "*.java" > java_cscope.files'
     let cscope_cmd = 'cscope -cbR -i java_cscope.files -f java_cscope.out'
     let ctags_cmd = 'ctags --fields=+i -n -R -f "java_tags" -L java_cscope.files'
@@ -124,7 +127,7 @@ function! s:construct_java_db_build_cmd(db_path)
 endfunction
 
 
-function! s:construct_c_db_build_cmd(db_path)
+function! codequery#db#construct_c_db_build_cmd(db_path) abort
     let find_cmd = 'find . -iname "*.c" > c_cscope.files && ' .
                  \ 'find . -iname "*.h" >> c_cscope.files && ' .
                  \ 'find . -iname "*.cpp" >> c_cscope.files && ' .
@@ -149,4 +152,3 @@ function! s:construct_c_db_build_cmd(db_path)
 
     return exists('g:codequery_build_c_db_cmd') ? g:codequery_build_c_db_cmd : shell_cmd
 endfunction
-

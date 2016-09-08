@@ -25,7 +25,7 @@ let g:codequery_find_text_cmd = 'Ack!'
 command! -nargs=* -complete=customlist,s:complete_function CodeQuery
             \ call codequery#run_codequery(<q-args>)
 command! -nargs=* -complete=customlist,s:complete_function CodeQueryAgain
-            \ call codequery:run_codequery_again_with_different_subcmd(<q-args>)
+            \ call codequery#run_codequery_again_with_different_subcmd(<q-args>)
 command! -nargs=* CodeQueryFilter call codequery#filter_qf_results(<q-args>)
 command! -nargs=* CodeQueryMakeDB call codequery#make_codequery_db(<q-args>)
 command! -nargs=* CodeQueryViewDB call codequery#view_codequery_db(<q-args>)
