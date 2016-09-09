@@ -60,11 +60,11 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 >  
 > Main TODO:
 > * Use Vim8's new features to enhance usability.
-> * Do lazy-loading.
-> * Fix some bugs
+> * ~~Do lazy-loading.~~
+> * Test it.
 >  
 > Completeness: 92%  
-> v1.0 Release Date: Mid-September  
+> Current Version: v0.8
 >  
 > It is Ok to try it! 👌  
   
@@ -78,11 +78,10 @@ echo mkdir mv cut find awk stat git(optional)
 </pre>
 
 #### 2. Install CodeQuery
-* Follow installation guide in [CodeQuery project](https://github.com/ruben2020/codequery#how-to-install-it).  
-* Enter `cqsearch -h` in your terminal and view the result. Make sure `cqsearch` accepts `-u` option.
-
-> If not, you will have to pull latest CodeQuery code and then [build it](https://github.com/ruben2020/codequery/blob/master/doc/INSTALL-LINUX.md) yourself.
- 
+* Linux => Follow instructions [here](https://github.com/ruben2020/codequery/blob/master/doc/INSTALL-LINUX.md).
+* Mac => `brew install qscintilla2 qt5 cmake` and then pull latest CodeQuery code to [build it](https://github.com/ruben2020/codequery/blob/master/doc/INSTALL-LINUX.md).  
+  
+>  You will be able to simply type `brew install codequery` to install a new enough version of codequery in the future. 😑
 
 #### 3. Install additional ctags/cscope tools for your languages
 | Language | Tools | How to install |
@@ -122,13 +121,13 @@ Plug 'devjoe/vim-codequery'
 
 * Go to the (git) root directory of your project. Open vim and type:
 ```vim
-" Indexing Python files
+" Index Python files
 :CodeQueryMakeDB python
   
-" Or indexing Python + Javascript files
+" Or index Python + Javascript files
 :CodeQueryMakeDB python javascript 
 ```
-* That's all! `python.db`, `javascript.db` ... will be created in the root directory. 
+* That's all. `python.db`, `javascript.db` ... will be created in the root directory. 
 * It's recommended that you should use `:CodeQueryMoveDBToGitDir python` to hide the DB file to `.git/codequery/` directory. If you do so, next time you can call `:CodeQueryMakeDB` directly in any opened Python buffer to rebuild the DB file.
 
 
@@ -218,7 +217,7 @@ Plug 'devjoe/vim-codequery'
 
 Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.vim) menu because I love and use it a lot ⭐.  There are two types of menu:
 
-* **Open a complete Unite menu**
+* **Open a full Unite menu**
 
 ```vim
 :CodeQueryMenu Unite Full  
@@ -257,9 +256,19 @@ nnoremap <space>\ :CodeQueryMenu Unite Magic<CR>A
 ```vim
 nnoremap <space><CR> :CodeQuery Symbol<CR>
   
-" Chain commands! To find possible tests (for python)
+" Chain commands to find possible tests (for python)
 nnoremap <space>t :CodeQuery Caller<CR>:CodeQueryFilter test_<CR>
 ```
+
+#### Find Text 
+```vim
+" Custom your `CodeQuery Text` commands
+let g:codequery_find_text_cmd = 'Ack!'
+  
+let g:codequery_find_text_from_current_file_dir = 0
+" 0 => search from project dir (git root directory / the directory containing xxx.db file)
+" 1 => search from the directory containing current file
+```  
   
 #### Load Ctags File
 ```vim
@@ -272,7 +281,7 @@ set tags+=./java_tags;/
 set tags+=./c_tags;/
 ```
   
-#### Clean Ctags, Cscope ... Files For Your Languages
+#### Clean Ctags, Cscope ... Files by Languages
 ```vim
 " It accpepts a list of your languages written in lowercase
 let g:codequery_enable_auto_clean_languages = ['python']
