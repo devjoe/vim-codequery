@@ -6,7 +6,7 @@
 
 " Init with default value
 let g:codequery_find_text_cmd = 'Ack!'
-let g:codequery_find_text_from_current_file_dir = 1
+let g:codequery_find_text_from_current_file_dir = 0
 
 
 " No need to init
