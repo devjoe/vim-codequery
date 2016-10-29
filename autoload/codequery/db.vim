@@ -36,6 +36,11 @@ function! codequery#db#find_db_path(filetype) abort
 endfunction
 
 
+function! codequery#db#make_db_callback(job, status) dict
+    echom 'Done!  (' . self.db_path . ')'
+endfunction
+
+
 function! codequery#db#construct_python_db_build_cmd(db_path) abort
     let find_cmd = 'find . -iname "*.py" > python_cscope.files'
     let pycscope_cmd = 'pycscope -f "python_cscope.out" -i python_cscope.files'
