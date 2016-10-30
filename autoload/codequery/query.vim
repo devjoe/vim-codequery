@@ -50,6 +50,17 @@ function! s:create_grep_options(word) abort
 endfunction
 
 
+function! s:show_result() abort
+    let results = getqflist()
+    call codequery#query#prettify_qf_layout_and_map_keys(results)
+    if !empty(results)
+        echom 'Found ' . len(results) . ' result' . (len(results) > 1 ? 's' : '')
+    else
+        echom 'Result Not Found'
+    endif
+endfunction
+
+
 
 " =============================================================================
 " Entries
@@ -193,14 +204,7 @@ function! codequery#query#do_query(word) abort
         let &l:grepprg = grepprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
         silent execute grepcmd
         redraw!
-
-        let results = getqflist()
-        call codequery#query#prettify_qf_layout_and_map_keys(results)
-        if !empty(results)
-            echom 'Found ' . len(results) . ' results'
-        else
-            echom 'Result Not Found'
-        endif
+        call s:show_result()
     finally
         let &l:grepprg  = l:grepprg_bak
         let &grepformat = l:grepformat_bak
