@@ -130,17 +130,24 @@ function! codequery#make_codequery_db(args) abort
             continue
         endif
 
-        " TODO: Rewrite it when Vim8 is coming
-        " ----------------------------------------------------------------
-        if exists(':Start')
+        if v:version >= 800
+            echom 'Making ...'
+            let mydict = {'db_path': db_path,
+                         \'callback': function("codequery#db#make_db_callback")}
+            let options = {'out_io': 'null',
+                          \'exit_cb': mydict.callback}
+            let s:build_job = job_start(['/bin/sh', '-c', shell_cmd], options)
+            let timer = timer_start(500,
+                                   \{-> execute("call job_status(s:build_job)","")},
+                                   \{'repeat': 60})
+        elseif exists(':Start')
             silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
             redraw!
-            echom 'Making ' . db_path ' => Run :CodeQueryViewDB to Check Status'
+            echom 'Making ... ' . db_path ' => Run :CodeQueryViewDB to Check Status'
         else
             silent execute '!' . shell_cmd
             redraw!
         endif
-        " ----------------------------------------------------------------
     endfor
     call s:restore_cwd()
 endfunction

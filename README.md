@@ -62,6 +62,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 > * Use Vim8's new features to enhance usability.
 > * ~~Do lazy-loading.~~
 > * Test it.
+> * Doc it.
 >  
 > Completeness: 92%  
 > Current Version: v0.8
@@ -100,17 +101,15 @@ echo mkdir mv cut find awk stat git(optional)
 * Use your favorite plugins manager: [pathogen](https://github.com/tpope/vim-pathogen), [Vundle](https://github.com/VundleVim/Vundle.vim), [Plug](https://github.com/junegunn/vim-plug), [NeoBundle](https://github.com/Shougo/neobundle.vim), [Dein](https://github.com/Shougo/dein.vim),  ...
 * Take Plug as an example:  
 ```vim
-" Recommemded => it helps vim-codequery to build DB asynchrously without blocking Vim
-Plug 'tpope/vim-dispatch'  
-   
-" Recommemded => if you don't have an :Ack (or :Ag) liked command => install it !
-Plug 'mileszs/ack.vim'  
-    
-" Highly Recommemded => if you want to use my custom Unite menu
-Plug 'Shougo/unite.vim'  
-   
-" The Must Have One
+" Required
+Plug 'Shougo/unite.vim'
 Plug 'devjoe/vim-codequery'
+    
+" Optional (if your vim version < 8.0)
+Plug 'tpope/vim-dispatch'
+    
+" Optional (if you don't have an :Ack (or :Ag) liked command)
+Plug 'mileszs/ack.vim'
 ```
   
 <br>
