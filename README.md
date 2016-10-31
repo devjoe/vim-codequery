@@ -22,8 +22,10 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
     * You can find: `definition, call, caller, callee, symbol, class, parent, child` and more for a string.
     * Convenient menus are created for you.
     * Well-formated results are shown in a custom Quickfix window with usable key bindings.
+    * Support asynchronous search (Vim version >= 8.0)
 2. **Manage your database easily**.
     * Load, make and move your database file by custom Vim commands.
+    * Support asynchronous build (Vim version >= 8.0 or by `Dispatch` plugin)
     * `Note: CodeQuery's SQLite database is built on top of ctags and cscope.`
 3. **Know your code more instantly**.
     * (TBD)
@@ -50,10 +52,12 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 
 ![](https://db.tt/KoZORec3)
   
-[more demo and screenshots](https://github.com/devjoe/vim-codequery/wiki/Screenshots-and-Demo)
-  
-> These videos are quite old.
-> Now vim-codequery works better than what you see. (by supporting Vim8's async feature)
+[more demo and screenshots](https://github.com/devjoe/vim-codequery/wiki/Screenshots-and-Demo)  
+    
+```
+These videos are quite old.   
+Now vim-codequery works better than what you see by using Vim8's async feature.
+```
 <br>
   
 ## Schedule
@@ -63,11 +67,12 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 > Main TODO:
 > * ~~Use Vim8's new features to enhance usability.~~
 > * ~~Do lazy-loading.~~
+> * Enhance usability.
 > * Test it.
 > * Doc it.
 >  
-> Completeness: 92%  
-> Current Version: v0.8
+> Completeness: 94%  
+> Current Version: v0.9  
 >  
 > Welcome to try it! 👌  
   
@@ -81,10 +86,8 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 </pre>
 
 #### 2. Install CodeQuery
-* Linux => Follow instructions [here](https://github.com/ruben2020/codequery/blob/master/doc/INSTALL-LINUX.md).
-* Mac => `brew install qscintilla2 qt5 cmake` and then pull latest CodeQuery code to [build it](https://github.com/ruben2020/codequery/blob/master/doc/INSTALL-LINUX.md).  
-  
->  You will be able to simply type `brew install codequery` to install a new enough version of codequery in the future. 😑
+* Linux => Install [binaries](https://sourceforge.net/projects/codequery/files/) or [build it](https://github.com/ruben2020/codequery/blob/master/doc/INSTALL-LINUX.md).
+* Mac => `brew install codequery` 🍺 (make sure codequery version >= v0.17.0)
 
 #### 3. Install additional ctags/cscope tools for your languages
 | Language | Tools | How to install |
@@ -93,10 +96,8 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 | Javascript | [Starscope](https://github.com/eapache/starscope) | `sudo gem install starscope` |
 | Ruby | [Starscope](https://github.com/eapache/starscope) | `sudo gem install starscope` |
 | Go | [Starscope](https://github.com/eapache/starscope) | `sudo gem install starscope` |
-| Java | N/A | 
-| C | N/A | 
-| C++ | N/A | 
 
+> `Java`, `C` and `C++` users do not need to install additional ctags/cscope tools.  
 > Starscope has been [packaged for Arch Linux](https://aur.archlinux.org/packages/ruby-starscope/)    
 
 #### 4. Install Vim plugins
@@ -106,11 +107,11 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 " Required
 Plug 'Shougo/unite.vim'
 Plug 'devjoe/vim-codequery'
-    
-" Optional (if your vim version < 8.0)
+  
+" Optional
+" if your vim version < 8.0
 Plug 'tpope/vim-dispatch'
-    
-" Optional (if you don't have an :Ack (or :Ag) liked command)
+" if you don't have an :Ack (or :Ag) liked command
 Plug 'mileszs/ack.vim'
 ```
   
