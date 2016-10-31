@@ -40,7 +40,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
   
 <br>
   
-## Demo 
+## Demo
 
 `Choose a query from menu ➙ Get results`  
 
@@ -52,6 +52,8 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
   
 [more demo and screenshots](https://github.com/devjoe/vim-codequery/wiki/Screenshots-and-Demo)
   
+> These videos are quite old.
+> Now vim-codequery works better than what you see. (by supporting Vim8's async feature)
 <br>
   
 ## Schedule
@@ -59,7 +61,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 > **This project is almost ready to be released.**   
 >  
 > Main TODO:
-> * Use Vim8's new features to enhance usability.
+> * ~~Use Vim8's new features to enhance usability.~~
 > * ~~Do lazy-loading.~~
 > * Test it.
 > * Doc it.
@@ -67,7 +69,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 > Completeness: 92%  
 > Current Version: v0.8
 >  
-> It is Ok to try it! 👌  
+> Welcome to try it! 👌  
   
 <br>
   
@@ -75,7 +77,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 
 #### 1. Make sure these commands are in your system
 <pre>
-echo mkdir mv cut find awk stat git(optional)
+/bin/sh echo mkdir mv cut find awk stat git(optional)
 </pre>
 
 #### 2. Install CodeQuery

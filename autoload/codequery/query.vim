@@ -50,6 +50,17 @@ function! s:create_grep_options(word) abort
 endfunction
 
 
+function! s:show_result() abort
+    let results = getqflist()
+    call codequery#query#prettify_qf_layout_and_map_keys(results)
+    if !empty(results)
+        echom 'Found ' . len(results) . ' result' . (len(results) > 1 ? 's' : '')
+    else
+        echom 'Result Not Found'
+    endif
+endfunction
+
+
 
 " =============================================================================
 " Entries
@@ -183,31 +194,61 @@ function! codequery#query#do_query(word) abort
         return
     endif
 
-    " TODO: Rewrite it when Vim8 is coming
-    " ----------------------------------------------------------------
-    let grepcmd = g:codequery_append_to_qf ? 'grepadd!' : 'grep!'
-    let l:grepprg_bak    = &l:grepprg
-    let l:grepformat_bak = &grepformat
-    try
-        let &l:grepformat = grepformat
-        let &l:grepprg = grepprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
-        silent execute grepcmd
-        redraw!
+    if v:version >= 800
+        echom 'Searching ... [' . a:word . ']'
 
-        let results = getqflist()
-        call codequery#query#prettify_qf_layout_and_map_keys(results)
-        if !empty(results)
-            echom 'Found ' . len(results) . ' results'
+        let job_dict = {'is_append': g:codequery_append_to_qf ? 1 : 0,
+                       \'target_file': tempname(),
+                       \'backup_ef': &errorformat,
+                       \'word' : a:word,
+                       \'callback': function("codequery#query#do_query_callback")}
+        let options = {'out_io': 'file',
+                      \'out_name': job_dict.target_file,
+                      \'exit_cb': job_dict.callback}
+
+        let &errorformat = '%f:%l%m'
+        let grepprg .= ' \| awk "{ sub(/.*\/\.\//,x) }1"'
+        let shell_cmd = substitute(grepprg, '\\|', '|', "g")
+        let shell_cmd = substitute(shell_cmd, "''", "'", "g")
+
+        let s:query_job = job_start(['/bin/sh', '-c', shell_cmd], options)
+        let timer = timer_start(50,
+                               \{-> execute("call job_status(s:query_job)", "")},
+                               \{'repeat': 200})
+    else
+        let grepcmd = g:codequery_append_to_qf ? 'grepadd!' : 'grep!'
+        let l:grepprg_bak    = &l:grepprg
+        let l:grepformat_bak = &grepformat
+        try
+            let &l:grepformat = grepformat
+            let &l:grepprg = grepprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
+            silent execute grepcmd
+            redraw!
+            call s:show_result()
+        finally
+            let &l:grepprg  = l:grepprg_bak
+            let &grepformat = l:grepformat_bak
+            let g:codequery_last_query_word = a:word
+            let g:last_query_fuzzy = g:codequery_fuzzy
+        endtry
+    endif
+endfunction
+
+
+function! codequery#query#do_query_callback(job, status) dict
+    try
+        if self.is_append
+            execute "caddfile " . self.target_file
         else
-            echom 'Result Not Found'
+            execute "cgetfile " . self.target_file
         endif
+        call s:show_result()
     finally
-        let &l:grepprg  = l:grepprg_bak
-        let &grepformat = l:grepformat_bak
-        let g:codequery_last_query_word = a:word
+        let g:codequery_last_query_word = self.word
         let g:last_query_fuzzy = g:codequery_fuzzy
+        let &errorformat = self.backup_ef
+        call delete(self.target_file)
     endtry
-    " ----------------------------------------------------------------
 endfunction
 
 
@@ -222,4 +263,3 @@ function! codequery#query#set_options(args) abort
         let g:codequery_append_to_qf = 1
     endif
 endfunction
-
