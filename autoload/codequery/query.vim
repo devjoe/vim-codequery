@@ -148,24 +148,26 @@ function! codequery#query#prettify_qf_layout_and_map_keys(results) abort
     normal! gg
 
     " map shortcuts
-    nnoremap <buffer> s :CodeQueryAgain Symbol<CR>
-    nnoremap <buffer> x :CodeQueryAgain Text<CR>
-    nnoremap <buffer> c :CodeQueryAgain Call<CR>
-    nnoremap <buffer> r :CodeQueryAgain Caller<CR>
-    nnoremap <buffer> e :CodeQueryAgain Callee<CR>
-    nnoremap <buffer> d :CodeQueryAgain Definition<CR>
-    nnoremap <buffer> C :CodeQueryAgain Class<CR>
-    nnoremap <buffer> M :CodeQueryAgain Member<CR>
-    nnoremap <buffer> P :CodeQueryAgain Parent<CR>
-    nnoremap <buffer> D :CodeQueryAgain Child<CR>
+    if !g:codequery_disable_qf_key_bindings
+        nnoremap <buffer> s :CodeQueryAgain Symbol<CR>
+        nnoremap <buffer> x :CodeQueryAgain Text<CR>
+        nnoremap <buffer> c :CodeQueryAgain Call<CR>
+        nnoremap <buffer> r :CodeQueryAgain Caller<CR>
+        nnoremap <buffer> e :CodeQueryAgain Callee<CR>
+        nnoremap <buffer> d :CodeQueryAgain Definition<CR>
+        nnoremap <buffer> C :CodeQueryAgain Class<CR>
+        nnoremap <buffer> M :CodeQueryAgain Member<CR>
+        nnoremap <buffer> P :CodeQueryAgain Parent<CR>
+        nnoremap <buffer> D :CodeQueryAgain Child<CR>
 
-    nnoremap <buffer> m :CodeQueryMenu Unite Magic<CR>
-    nnoremap <buffer> q :cclose<CR>
-    nnoremap <buffer> \ :CodeQueryFilter 
+        nnoremap <buffer> m :CodeQueryMenu Unite Magic<CR>
+        nnoremap <buffer> q :cclose<CR>
+        nnoremap <buffer> \ :CodeQueryFilter 
 
-    nnoremap <buffer> p <CR><C-W>p
-    nnoremap <buffer> u :colder \| CodeQueryShowQF<CR>
-    nnoremap <buffer> <C-R> :cnewer \| CodeQueryShowQF<CR>
+        nnoremap <buffer> p <CR><C-W>p
+        nnoremap <buffer> u :colder \| CodeQueryShowQF<CR>
+        nnoremap <buffer> <C-R> :cnewer \| CodeQueryShowQF<CR>
+    endif
 
     " lock qf again
     setlocal nomodifiable

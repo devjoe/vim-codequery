@@ -24,6 +24,9 @@ endif
 if !exists('g:codequery_trigger_build_db_when_db_not_found')
     let g:codequery_trigger_build_db_when_db_not_found = 0
 endif
+if !exists('g:codequery_disable_qf_key_bindings')
+    let g:codequery_disable_qf_key_bindings = 0
+endif
 
 
 
