@@ -6,7 +6,7 @@ let g:c_family_filetype_list =
     \ ['c', 'h', 'cpp', 'cxx', 'cc', 'hpp', 'hxx', 'hh']
 
 
-let s:supported_filetypes = g:c_family_filetype_list +
+let g:codequery_supported_filetype_list = g:c_family_filetype_list +
     \ ['python', 'javascript', 'go', 'ruby', 'java', 'c', 'cpp']
 
 
@@ -14,7 +14,7 @@ let s:menu_subcommands = [ 'Unite' ]
 
 
 function! s:check_filetype(filetype) abort
-    if index(s:supported_filetypes, a:filetype) == -1
+    if index(g:codequery_supported_filetype_list, a:filetype) == -1
         return 0
     endif
     return 1

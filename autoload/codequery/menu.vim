@@ -40,6 +40,24 @@ function! codequery#menu#use_unite_menu(magic) abort
     let menu_goto_magic =    [['▷  Open Magic Menu ▸', 'CodeQueryMenu Unite Magic']]
     let menu_goto_full =     [['▷  Open Full Menu ▸', 'CodeQueryMenu Unite Full']]
 
+    " DB not found => remove unnecessary items from menu
+    let db_path = codequery#db#find_db_path(&filetype)
+    if empty(db_path)
+        let menu_frequent_cmds =
+            \[['▷  Find Text', g:codequery_find_text_cmd],
+            \ ['▷  Make DB', 'call feedkeys(":CodeQueryMakeDB ' . &filetype . '")']]
+        let menu_function_cmds = []
+        let menu_class_cmds = []
+        let menu_other_cmds = []
+        let menu_delimiter = []
+        let menu_db_cmds = []
+        let menu_goto_magic = []
+        let menu_goto_full = []
+        if index(g:codequery_supported_filetype_list, &filetype) == -1
+            let menu_show_qf += [['# Not Supported Filetype: [' . &filetype . ']', '']]
+        endif
+    endif
+
     if a:magic
         if &filetype ==# 'qf'
             call codequery#menu#patch_unite_magic_menu_from_qf(menu_frequent_cmds,
