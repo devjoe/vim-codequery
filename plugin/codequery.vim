@@ -27,6 +27,9 @@ endif
 if !exists('g:codequery_disable_qf_key_bindings')
     let g:codequery_disable_qf_key_bindings = 0
 endif
+if !exists('g:codequery_enable_not_so_magic_menu')
+    let g:codequery_enable_not_so_magic_menu = 0
+endif
 
 
 

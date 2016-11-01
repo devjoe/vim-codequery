@@ -69,7 +69,14 @@ function! codequery#menu#use_unite_menu(magic) abort
         endif
 
         let menu_description = 'CodeQuery Magic Menu'
-        if cword =~# '\C^[A-Z].*'
+        if g:codequery_enable_not_so_magic_menu
+            let cmd_candidates = menu_frequent_cmds
+                             \ + menu_function_cmds
+                             \ + menu_class_cmds
+                             \ + menu_other_cmds
+                             \ + menu_show_qf
+                             \ + menu_goto_full
+        elseif cword =~# '\C^[A-Z].*'
             let cmd_candidates = menu_frequent_cmds
                              \ + menu_class_cmds
                              \ + menu_other_cmds
