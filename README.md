@@ -134,13 +134,13 @@ Plug 'mileszs/ack.vim'
 
 
 #### 2. Search
-* **Find symbol under cursor**  
+* **Find symbol under your cursor**  
 
 ```vim  
 :CodeQuery
 ```  
 
-* **Find `?` under cursor**  
+* **Find word (by subcommands) under your cursor**  
 
 ```vim  
 :CodeQuery [SubCommand]  
@@ -154,13 +154,13 @@ Plug 'mileszs/ack.vim'
 :CodeQuery [SubCommand] [word]  
 ```
   
-* **Find `?` again with the same word**
+* **Find again with the same word**
 
 ```vim
 :CodeQueryAgain [SubCommand]  
 ```
 
-* **With fuzzy Option**    
+* **Use fuzzy Option**    
 
 ```vim
 :CodeQuery [SubCommand] [word] -f  
@@ -168,7 +168,7 @@ Plug 'mileszs/ack.vim'
 " [word] can be: get_* or *user_info or find_*_by_id
 ```
 
-* **With append Option** (results will be added to current Quickfix)    
+* **Use append Option** (results will be added to the current Quickfix)    
 
 ```vim
 :CodeQuery [SubCommand] [word] -a  
@@ -217,9 +217,9 @@ Plug 'mileszs/ack.vim'
 
 #### 4. Open Menu
 
-Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.vim) menu because I love and use it a lot ⭐.  There are two types of menu:
+Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.vim) menu because I love it ⭐.  There are two types of menu:
 
-* **Open a full Unite menu**
+* **Full Unite menu**
 
 ```vim
 :CodeQueryMenu Unite Full  
@@ -230,22 +230,22 @@ Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.v
 ```
 <img src="https://db.tt/j9XrjR4v" align="center" width="400">   
     
-* **Open a magic Unite menu**
+* **Magic Unite menu**
 
 ```vim
 :CodeQueryMenu Unite Magic  
   
 " This menu changes dynamically:
-" 1. If word under cursor is capital (possible be class): remove [F] actions
-" 2. If word under cursor is non-capital (possible be function): remove [C] actions
-" 3. Show reasonable actions only within Quickfix
+" 1. If the word under your cursor begins with a capital letter (possible be class): show [C] actions
+" 2. vice versa (possible be function): show [F] actions
+" 3. Show reasonable actions within Quickfix
 ```
 <img src="https://db.tt/g6ZXMfaY" align="center" width="300">   
   
 <br>
   
 ## Tips
-#### Open Menu Smartly  
+#### Open Menu  
 ```vim
 nnoremap <space>c :CodeQueryMenu Unite Full<CR>
 nnoremap <space>; :CodeQueryMenu Unite Magic<CR>
@@ -254,12 +254,24 @@ nnoremap <space>; :CodeQueryMenu Unite Magic<CR>
 nnoremap <space>\ :CodeQueryMenu Unite Magic<CR>A
 ```
   
-#### Query Smartly  
+#### Query  
 ```vim
 nnoremap <space><CR> :CodeQuery Symbol<CR>
   
 " Chain commands to find possible tests (for python)
 nnoremap <space>t :CodeQuery Caller<CR>:CodeQueryFilter test_<CR>
+```
+  
+#### Filter  
+```vim
+" Filter reversely by adding '!'
+:CodeQueryFilter ! [word]
+```
+  
+#### Build  
+```vim
+" Trigger db building (in current filetype) when your query fails
+let g:codequery_trigger_build_db_when_db_not_found = 1
 ```
 
 #### Find Text 
@@ -268,8 +280,12 @@ nnoremap <space>t :CodeQuery Caller<CR>:CodeQueryFilter test_<CR>
 let g:codequery_find_text_cmd = 'Ack!'
   
 let g:codequery_find_text_from_current_file_dir = 0
-" 0 => search from project dir (git root directory / the directory containing xxx.db file)
+" 0 => search from project dir (git root directory -> then the directory containing xxx.db file)
 " 1 => search from the directory containing current file
+  
+" If you use ':CodeQuery Symbol' in a txt file, of course, it will fail due to wrong filetype.
+" With the following option set to 1, ':CodeQuery Text' will be automatically sent when your query fails.
+let g:codequery_auto_switch_to_find_text_for_wrong_filetype = 0
 ```  
   
 #### Load Ctags File
@@ -285,8 +301,9 @@ set tags+=./c_tags;/
   
 #### Clean Ctags, Cscope ... Files by Languages
 ```vim
-" It accpepts a list of your languages written in lowercase
 let g:codequery_enable_auto_clean_languages = ['python']
+  
+" It accpepts a list of your languages written in lowercase
 ```
   
 #### Custom Database Building
@@ -298,6 +315,16 @@ let g:codequery_build_ruby_db_cmd = '...'
 let g:codequery_build_go_db_cmd = '...'  
 let g:codequery_build_java_db_cmd = '...'  
 let g:codequery_build_c_db_cmd = '...'  
+```
+  
+  
+#### Others
+```vim
+" You can disable key binding within quickfix
+let g:codequery_disable_qf_key_bindings = 1
+  
+" if your function usually begins with a capital letter ..., you can change your magic menu to a not-so-magic one
+let g:codequery_enable_not_so_magic_menu = 1
 ```
   
 <br>
