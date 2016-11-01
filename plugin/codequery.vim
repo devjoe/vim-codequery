@@ -1,12 +1,30 @@
 " Copyright (c) 2016 excusemejoe
 " MIT License
 
+
+if exists('g:loaded_loaded_codequery')
+    finish
+endif
+let g:loaded_codequery = 1
+
+
 " =============================================================================
 " Options
 
 " Init with default value
-let g:codequery_find_text_cmd = 'Ack!'
-let g:codequery_find_text_from_current_file_dir = 0
+if !exists('g:codequery_find_text_cmd')
+    let g:codequery_find_text_cmd = 'Ack!'
+endif
+if !exists('g:codequery_find_text_from_current_file_dir')
+    let g:codequery_find_text_from_current_file_dir = 0
+endif
+if !exists('g:codequery_auto_switch_to_find_text_for_wrong_filetype')
+    let g:codequery_auto_switch_to_find_text_for_wrong_filetype = 0
+endif
+if !exists('g:codequery_trigger_build_db_when_db_not_found')
+    let g:codequery_trigger_build_db_when_db_not_found = 0
+endif
+
 
 
 " No need to init

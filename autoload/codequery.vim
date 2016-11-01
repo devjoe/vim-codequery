@@ -53,6 +53,10 @@ function! codequery#run_codequery(args) abort
     call s:save_cwd()
     if !s:check_filetype(&filetype)
         echom 'Not Supported Filetype: ' . &filetype
+        if g:codequery_auto_switch_to_find_text_for_wrong_filetype
+            silent execute g:codequery_find_text_cmd
+            call codequery#query#prettify_qf_layout_and_map_keys(getqflist())
+        endif
         return
     endif
 
@@ -63,6 +67,9 @@ function! codequery#run_codequery(args) abort
     let g:codequery_db_path = ''
     if !s:set_db()
         call s:restore_cwd()
+        if g:codequery_trigger_build_db_when_db_not_found
+            execute 'CodeQueryMakeDB ' . &filetype
+        endif
         return
     endif
 
@@ -131,7 +138,7 @@ function! codequery#make_codequery_db(args) abort
         endif
 
         if v:version >= 800
-            echom 'Making ...'
+            echom 'Making DB ...'
             let mydict = {'db_path': db_path,
                          \'callback': function("codequery#db#make_db_callback")}
             let options = {'out_io': 'null',
