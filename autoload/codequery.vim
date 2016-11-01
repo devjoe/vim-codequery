@@ -253,11 +253,27 @@ endfunction
 
 
 " modify from someone's .vimrc
-function! codequery#filter_qf_results(query) abort
+function! codequery#filter_qf_results(args) abort
+    let args = split(a:args, ' ')
+    if len(args) > 1
+        let query = args[1]
+        let reverse_filter = 1
+    else
+        let query = args[0]
+        let reverse_filter = 0
+    endif
+    echom query
+
     let results = getqflist()
     for d in results
-        if bufname(d['bufnr']) !~ a:query && d['text'] !~ a:query
-            call remove(results, index(results, d))
+        if reverse_filter
+            if bufname(d['bufnr']) =~ query || d['text'] =~ query
+                call remove(results, index(results, d))
+            endif
+        else
+            if bufname(d['bufnr']) !~ query && d['text'] !~ query
+                call remove(results, index(results, d))
+            endif
         endif
     endfor
     call setqflist(results)
