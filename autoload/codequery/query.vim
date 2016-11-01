@@ -50,13 +50,14 @@ function! s:create_grep_options(word) abort
 endfunction
 
 
-function! s:show_result() abort
+function! s:show_result(word) abort
     let results = getqflist()
     call codequery#query#prettify_qf_layout_and_map_keys(results)
     if !empty(results)
         echom 'Found ' . len(results) . ' result' . (len(results) > 1 ? 's' : '')
+                    \. ' /' . a:word . '/'
     else
-        echom 'Result Not Found'
+        echom 'Result Not Found /' . a:word . '/'
     endif
 endfunction
 
@@ -226,7 +227,7 @@ function! codequery#query#do_query(word) abort
             let &l:grepprg = grepprg . ' \| awk "{ sub(/.*\/\.\//,x) }1"'
             silent execute grepcmd
             redraw!
-            call s:show_result()
+            call s:show_result(a:word)
         finally
             let &l:grepprg  = l:grepprg_bak
             let &grepformat = l:grepformat_bak
@@ -244,7 +245,7 @@ function! codequery#query#do_query_callback(job, status) dict
         else
             execute "cgetfile " . self.target_file
         endif
-        call s:show_result()
+        call s:show_result(self.word)
     finally
         let g:codequery_last_query_word = self.word
         let g:last_query_fuzzy = g:codequery_fuzzy
