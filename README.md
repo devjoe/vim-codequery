@@ -62,17 +62,17 @@ Now vim-codequery works better than what you see by using Vim8's async feature.
   
 ## Schedule
 
-> **This project is almost ready to be released.**   
+> **This project is released.**   
 >  
 > Main TODO:
 > * ~~Use Vim8's new features to enhance usability.~~
 > * ~~Do lazy-loading.~~
-> * Enhance usability.
-> * Test it.
+> * ~~Enhance usability.~~
+> * ~~Test it.~~
+> * Add **explain** command in v1.0.0
 > * Doc it.
 >  
-> Completeness: 94%  
-> Current Version: v0.9  
+> Current Version: v0.9.1  
 >  
 > Welcome to try it! 👌  
   
