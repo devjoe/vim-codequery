@@ -114,7 +114,13 @@ Plug 'tpope/vim-dispatch'
 " if you don't have an :Ack (or :Ag) liked command
 Plug 'mileszs/ack.vim'
 ```
-  
+* In case you prefer to use Vim8's native package manager to manage plugins manually. Here comes an installation guide for that:  
+  1. Go to `~/.vim`
+  2. Run `mkdir -p pack/vim-codequery/start/` and then go to `start` directory
+  3. Run `git clone https://github.com/devjoe/vim-codequery` to get latest vim-codequery code
+  4. It's done. 😎 Now `vim-codequery` will be loaded when your Vim starts. You can install [unite](https://github.com/Shougo/unite.vim) in the same way
+  5. Learn more about Vim8's package system by typing `:help package | only`  
+  
 <br>
   
 ## Usage
