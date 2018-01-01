@@ -1,7 +1,7 @@
 ![](https://github.com/ruben2020/codequery/raw/master/doc/logotitle.png)
   
   
-<img src="https://db.tt/j9XrjR4v" align="center" width="500">  
+<img src="https://devjoe.github.io/public/menu_only.png" align="center" width="500">  
 > Choose what you want to know! 😼
      
 ```vim
@@ -46,11 +46,11 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
 
 `Choose a query from menu ➙ Get results`  
 
-![](https://db.tt/rf6fO2eJ)
+![](https://devjoe.github.io/public/cq_demo1.gif)
 
 `... ➙ Switch to different query ➙ Get results ... ➙ Filter them ➙ Get Results ➙ Undo ➙ Redo`  
 
-![](https://db.tt/KoZORec3)
+![](https://devjoe.github.io/public/ca_demo2.gif)
   
 [more demo and screenshots](https://github.com/devjoe/vim-codequery/wiki/Screenshots-and-Demo)  
     
@@ -234,7 +234,7 @@ Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.v
 " [F] means this action is for 'function variable only'
 " [C] is for 'class variable only'  
 ```
-<img src="https://db.tt/j9XrjR4v" align="center" width="400">   
+<img src="https://devjoe.github.io/public/fullmenu.png" align="center" width="400">   
     
 * **Magic Unite menu**
 
@@ -243,10 +243,10 @@ Currently, vim-codequery only provides [Unite](https://github.com/Shougo/unite.v
   
 " This menu changes dynamically:
 " 1. If the word under your cursor begins with a capital letter (possible be class): show [C] actions
-" 2. vice versa (possible be function): show [F] actions
+" 2. Vice versa (possible be function): show [F] actions
 " 3. Show reasonable actions within Quickfix
 ```
-<img src="https://db.tt/g6ZXMfaY" align="center" width="300">   
+<img src="https://devjoe.github.io/public/magicmenu.png" align="center" width="300">   
   
 <br>
   
@@ -364,8 +364,6 @@ let g:codequery_enable_not_so_magic_menu = 1
    
 ## How to Contribute
 #### Use It
-
-> And give me [feedback](https://goo.gl/forms/9r8sOS6xTCBjNQEW2) or [bug report](https://docs.google.com/spreadsheets/d/1eSweAzJKYdzeNdTUVfhujEAOy1RHq1_bEBSX8DQ6xvA/edit?usp=sharing).
 
 #### Fork It
 
