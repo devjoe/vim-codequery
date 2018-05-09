@@ -377,6 +377,13 @@ let g:codequery_enable_not_so_magic_menu = 1
    
 <br>
    
+## Contributors
+* [devjoe](https://github.com/devjoe)
+* [johnzeng](https://github.com/johnzeng)
+* [syslot](https://github.com/syslot)
+   
+<br>
+   
 ## Credits
 
 Thank all for working on these great projects!
