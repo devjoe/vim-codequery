@@ -137,7 +137,13 @@ function! codequery#make_codequery_db(args) abort
             continue
         endif
 
-        if v:version >= 800 && !has('nvim')
+        if has('nvim')
+            echom 'Making DB ...'
+            let mydict = {'db_path': db_path,
+                         \'callback': function("codequery#db#make_db_nvim_callback")}
+            let callbacks = {'on_exit': mydict.callback}
+            let s:build_job = jobstart(['/bin/sh', '-c', shell_cmd], callbacks)
+        elseif v:version >= 800
             echom 'Making DB ...'
             let mydict = {'db_path': db_path,
                          \'callback': function("codequery#db#make_db_callback")}

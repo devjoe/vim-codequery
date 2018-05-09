@@ -41,6 +41,11 @@ function! codequery#db#make_db_callback(job, status) dict
 endfunction
 
 
+function! codequery#db#make_db_nvim_callback(job, data, status) dict
+    echom 'Done! Built codequery db!'
+endfunction
+
+
 function! codequery#db#construct_python_db_build_cmd(db_path) abort
     let find_cmd = 'find . -iname "*.py" > python_cscope.files'
     let pycscope_cmd = 'pycscope -f "python_cscope.out" -i python_cscope.files'

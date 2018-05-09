@@ -25,7 +25,7 @@ This Vim plugin is built on top of the great tool [CodeQuery](https://github.com
     * Support asynchronous search (Vim version >= 8.0)
 2. **Manage your database easily**.
     * Load, make and move your database file by custom Vim commands.
-    * Support asynchronous build (Vim version >= 8.0 or by `Dispatch` plugin)
+    * Support asynchronous build (Vim version >= 8.0 or NeoVim or by `Dispatch` plugin)
     * `Note: CodeQuery's SQLite database is built on top of ctags and cscope.`
 3. **Know your code more instantly**.
     * (TBD)
@@ -69,10 +69,12 @@ Now vim-codequery works better than what you see by using Vim8's async feature.
 > * ~~Do lazy-loading.~~
 > * ~~Enhance usability.~~
 > * ~~Test it.~~
+> * ~~Support NeoVim at a certain level.~~
 > * Add **explain** command in v1.0.0
+> * Make UI be optional
 > * Doc it.
 >  
-> Current Version: v0.9.1  
+> Current Version: v0.9.2  
 >  
 > Welcome to try it! 👌  
   
@@ -372,6 +374,13 @@ let g:codequery_enable_not_so_magic_menu = 1
 #### Star It
 
 > If you like it. 👍
+   
+<br>
+   
+## Contributors
+* [devjoe](https://github.com/devjoe)
+* [johnzeng](https://github.com/johnzeng)
+* [syslot](https://github.com/syslot)
    
 <br>
    
