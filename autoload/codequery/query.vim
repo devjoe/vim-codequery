@@ -197,7 +197,7 @@ function! codequery#query#do_query(word) abort
         return
     endif
 
-    if v:version >= 800
+    if v:version >= 800 && !has('nvim')
         echom 'Searching ... [' . a:word . ']'
 
         let job_dict = {'is_append': g:codequery_append_to_qf ? 1 : 0,
