@@ -23,12 +23,21 @@ endfunction
 
 function! s:set_db() abort
     let path = codequery#db#find_db_path(&filetype)
-    if empty(path)
+    if !strlen(path)
         echom 'CodeQuery DB Not Found'
         return 0
     endif
 
-    let g:codequery_db_path = path
+	let g:codequery_db_path = path
+	"let dbs = split(path)
+	"let g:codequery_db_path = ''
+	"for i in range(len(dbs))
+	"	if i
+	"		let g:codequery_db_path .= ' -s '
+	"	endif
+	"	let g:codequery_db_path .= dbs[i]
+	"endfor
+	"echom g:codequery_db_path
     return 1
 endfunction
 
@@ -78,8 +87,7 @@ function! codequery#run_codequery(args) abort
     let cword = codequery#query#get_valid_cursor_word()
 
     if args_num == 0
-        call codequery#query#do_query(cword)
-
+		call codequery#query#do_query(cword)
     elseif index(g:codequery_subcommands, args[0]) != -1
         call codequery#query#set_options(args)
         let iword = codequery#query#get_valid_input_word(args)
@@ -90,7 +98,11 @@ function! codequery#run_codequery(args) abort
             return
         endif
 
-        call codequery#query#do_query(word)
+"		let dbs = split(g:codequery_db_path)
+"		for db in dbs
+"			let g:codequery_db_path = db
+			call codequery#query#do_query(word)
+"		endfor
     else
         echom 'Wrong Subcommand !'
     endif
@@ -111,57 +123,74 @@ function! codequery#make_codequery_db(args) abort
             continue
         endif
 
-        let db_path = codequery#db#find_db_path(ft)
-        if empty(db_path)
-            if index(g:c_family_filetype_list, ft) != -1
-                let db_path = 'c_family.db'
-            else
-                let db_path = ft . '.db'
-            endif
-        endif
+		let dbs = flatten(add([], split(codequery#db#find_db_path(ft))))
+		for i in range(len(dbs))
+			echo i + 1 .. '. ' .. dbs[i]
+		endfor
 
-        if ft ==? 'python'
-            let shell_cmd = codequery#db#construct_python_db_build_cmd(db_path)
-        elseif ft ==? 'javascript'
-            let shell_cmd = codequery#db#construct_javascript_db_build_cmd(db_path)
-        elseif ft ==? 'ruby'
-            let shell_cmd = codequery#db#construct_ruby_db_build_cmd(db_path)
-        elseif ft ==? 'go'
-            let shell_cmd = codequery#db#construct_go_db_build_cmd(db_path)
-        elseif ft ==? 'java'
-            let shell_cmd = codequery#db#construct_java_db_build_cmd(db_path)
-        elseif index(g:c_family_filetype_list, ft) != -1
-            let shell_cmd = codequery#db#construct_c_db_build_cmd(db_path)
-        else
-            echom 'No Command For Building .' . ft . ' file'
-            continue
-        endif
+		let db = ft . '.db'
+		while len(dbs)
+			echo 'Tips: (Terminate operation)Quit: Q/q | (Use new file)New: W/w'
+			let sndb = input('Select File(number): ')
+			echo ' '
+			if sndb == 'q' || sndb == 'Q'
+				return
+			endif
+			if sndb == 'w' || sndb == 'W'
+				if index(g:c_family_filetype_list, ft) != -1
+					let db = 'c_family.db'
+				endif
+				break
+			elseif sndb > 0 && sndb < len(dbs) + 1
+				let db = get(dbs, sndb - 1, '')
+				break
+			else
+				echo 'Invalid Input !'
+			endif
+		endwhile
 
-        if has('nvim')
-            echom 'Making DB ...'
-            let mydict = {'db_path': db_path,
-                         \'callback': function("codequery#db#make_db_nvim_callback")}
-            let callbacks = {'on_exit': mydict.callback}
-            let s:build_job = jobstart(['/bin/sh', '-c', shell_cmd], callbacks)
-        elseif v:version >= 800
-            echom 'Making DB ...'
-            let mydict = {'db_path': db_path,
-                         \'callback': function("codequery#db#make_db_callback")}
-            let options = {'out_io': 'null',
-                          \'exit_cb': mydict.callback}
-            let s:build_job = job_start(['/bin/sh', '-c', shell_cmd], options)
-            let timer = timer_start(500,
-                                   \{-> execute("call job_status(s:build_job)","")},
-                                   \{'repeat': 60})
-        elseif exists(':Start')
-            silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
-            redraw!
-            echom 'Making ... ' . db_path ' => Run :CodeQueryViewDB to Check Status'
-        else
-            silent execute '!' . shell_cmd
-            redraw!
-        endif
-    endfor
+		if ft ==? 'python'
+			let shell_cmd = codequery#db#construct_python_db_build_cmd(db)
+		elseif ft ==? 'javascript'
+			let shell_cmd = codequery#db#construct_javascript_db_build_cmd(db)
+		elseif ft ==? 'ruby'
+			let shell_cmd = codequery#db#construct_ruby_db_build_cmd(db)
+		elseif ft ==? 'go'
+			let shell_cmd = codequery#db#construct_go_db_build_cmd(db)
+		elseif ft ==? 'java'
+			let shell_cmd = codequery#db#construct_java_db_build_cmd(db)
+		elseif index(g:c_family_filetype_list, ft) != -1
+			let shell_cmd = codequery#db#construct_c_db_build_cmd(db)
+		else
+			echom 'No Command For Building .' . ft . ' file'
+			continue
+		endif
+
+		if has('nvim')
+			echom 'Making DB ...'
+			let mydict = {'db_path': db,
+						 \'callback': function("codequery#db#make_db_nvim_callback")}
+			let callbacks = {'on_exit': mydict.callback}
+			let s:build_job = jobstart(['/bin/sh', '-c', shell_cmd], callbacks)
+		elseif v:version >= 800
+			echom 'Making DB ...'
+			let mydict = {'db_path': db,
+						 \'callback': function("codequery#db#make_db_callback")}
+			let options = {'out_io': 'null',
+						  \'exit_cb': mydict.callback}
+			let s:build_job = job_start(['/bin/sh', '-c', shell_cmd], options)
+			let timer = timer_start(500,
+								   \{-> execute("call job_status(s:build_job)","")},
+								   \{'repeat': 60})
+		elseif exists(':Start')
+			silent execute 'Start! -title=Make_CodeQuery_DB -wait=error ' . shell_cmd
+			redraw!
+			echom 'Making ... ' . db . ' => Run :CodeQueryViewDB to Check Status'
+		else
+			silent execute '!' . shell_cmd
+			redraw!
+		endif
+	endfor
     call s:restore_cwd()
 endfunction
 
@@ -179,17 +208,20 @@ function! codequery#view_codequery_db(args) abort
             continue
         endif
 
-        let db_path = codequery#db#find_db_path(ft)
-        if empty(db_path)
-            if index(g:c_family_filetype_list, ft) != -1
-                execute '!echo "\n(c family) DB Not Found"'
-            else
-                execute '!echo "\n(' . ft . ') DB Not Found"'
-            endif
-            continue
-        endif
-
-        execute '!echo "\n(' . db_path . ') is update at: "  &&  stat -f "\%Sm" ' . db_path
+        let db_path = split(codequery#db#find_db_path(ft))
+		if !len(db_path)
+			if index(g:c_family_filetype_list, ft) != -1
+				execute '!echo "\n(c family) DB Not Found"'
+			else
+				execute '!echo "\n(' . ft . ') DB Not Found"'
+			endif
+			continue
+		endif
+		let dbs = flatten(add([], db_path))
+		for db in dbs
+"			execute '!echo \"\n(' . db . ') is update at: \"  &&  stat -f \"\%Sm" ' . db
+			execute '!echo "(' . db . ') is update at: "  &&  stat -f ' . db
+		endfor
     endfor
     call s:restore_cwd()
 endfunction
@@ -210,8 +242,11 @@ function! codequery#move_codequery_db_to_git_hidden_dir(args) abort
         endif
         let git_root_dir = systemlist('git rev-parse --show-toplevel')[0]
         let db_path = codequery#db#find_db_path(ft)
+		if len(split(db_path)) > 1
+			db_path = ''
+		endif
 
-        if !v:shell_error && !empty(db_path)
+        if !v:shell_error && strlen(db_path)
             let new_db_path = git_root_dir . '/.git/codequery/' . db_name
             call system('mkdir -p ' . git_root_dir . '/.git/codequery/')
             call system('mv ' . db_path . ' ' . new_db_path)

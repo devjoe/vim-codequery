@@ -2,6 +2,25 @@
 " Entries
 
 
+let g:module_api_path_point = $codequery_base_db_path ? $codequery_base_db_path : expand('$HOME') . '/' . '.doctype'
+function! codequery#db#module_found(filetype)
+	return codequery#db#path_module_found(g:module_api_path_point, '.*' . a:filetype . '\.db')
+endfunction
+
+function! codequery#db#path_module_found(basepath, match_rule_matchstr)
+	let dbs = []
+	if isdirectory(a:basepath)
+		let objs = split(globpath(a:basepath, '**'), '\n')
+		for obj in objs
+			if strlen(matchstr(obj, '.*' . a:match_rule_matchstr))
+				call add(dbs, obj)
+			endif
+		endfor
+	endif
+	return dbs
+endfunction
+
+
 " `lcd` brings side effect !!
 function! codequery#db#find_db_path(filetype) abort
     if index(g:c_family_filetype_list, a:filetype) != -1
@@ -30,9 +49,17 @@ function! codequery#db#find_db_path(filetype) abort
             if !empty(lookup_path)
                 execute 'lcd ' . git_root_dir
                 return lookup_path
+			else
+				let cache_paths = codequery#db#module_found(a:filetype)
+				let lookup_path = join(cache_paths)
+				if strlen(lookup_path)
+					execute 'lcd ' . git_root_dir
+					return lookup_path
+				endif
             endif
         endif
     endif
+	return ''
 endfunction
 
 
