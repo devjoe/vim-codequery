@@ -31,32 +31,32 @@ function! s:create_grep_options(word) abort
 
     let grepformat = '%f:%l%m'
 
-	let grepprg = ''
-	let dbs = split(g:codequery_db_path)
-	for i in range(len(dbs))
-	    let grepprg .= 'cqsearch -s ' . dbs[i] . ' -p ' . g:codequery_querytype . ' -t '
-					\ . word . ' -u ' . fuzzy_option . (i + 1 == len(dbs) ? '' : ' && ')
-	endfor
+    let grepprg = ''
+    let dbs = split(g:codequery_db_path)
+    for i in range(len(dbs))
+        let grepprg .= 'cqsearch -s ' . dbs[i] . ' -p ' . g:codequery_querytype . ' -t '
+                    \ . word . ' -u ' . fuzzy_option . (i + 1 == len(dbs) ? '' : ' && ')
+    endfor
 
-	let last_sub_grepprg = pipeline_script_option
+    let last_sub_grepprg = pipeline_script_option
 
     if g:codequery_querytype == s:subcmd_map['FileImporter']
 
-		let last_sub_grepprg = ''
+        let last_sub_grepprg = ''
 
     elseif g:codequery_querytype == s:subcmd_map['Callee'] ||
          \ g:codequery_querytype == s:subcmd_map['Caller'] ||
          \ g:codequery_querytype == s:subcmd_map['Member']
 
-		let last_sub_grepprg = ' \| awk ''{ print $2 " " $1 }'''
+        let last_sub_grepprg = ' \| awk ''{ print $2 " " $1 }'''
 
     elseif g:codequery_querytype == s:subcmd_map['Text']
         let grepformat = ''
         let grepprg = g:codequery_find_text_cmd . ' ' . a:word
-		let last_sub_grepprg = ''
+        let last_sub_grepprg = ''
     endif
 
-	let grepprg .= last_sub_grepprg
+    let grepprg .= last_sub_grepprg
 
     return [grepformat, grepprg]
 endfunction
@@ -199,7 +199,7 @@ function! codequery#query#do_query(word) abort
 
     " Find Text
     if empty(grepformat)
-		echom "@@"
+        echom "@@"
         if g:codequery_find_text_from_current_file_dir == 1
             lcd %:p:h
         endif
