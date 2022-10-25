@@ -205,8 +205,7 @@ function! codequery#view_codequery_db(args) abort
         endif
         let dbs = flatten(add([], db_path))
         for db in dbs
-"            execute '!echo \"\n(' . db . ') is update at: \"  &&  stat -f \"\%Sm" ' . db
-            execute '!echo "(' . db . ') is update at: "  &&  stat -f ' . db
+            execute '!echo "' . db . '   " $(stat -f "\%Sm" ' . db . ')'
         endfor
     endfor
     call s:restore_cwd()
