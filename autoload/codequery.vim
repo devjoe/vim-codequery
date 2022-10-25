@@ -29,15 +29,6 @@ function! s:set_db() abort
     endif
 
 	let g:codequery_db_path = path
-	"let dbs = split(path)
-	"let g:codequery_db_path = ''
-	"for i in range(len(dbs))
-	"	if i
-	"		let g:codequery_db_path .= ' -s '
-	"	endif
-	"	let g:codequery_db_path .= dbs[i]
-	"endfor
-	"echom g:codequery_db_path
     return 1
 endfunction
 
@@ -97,12 +88,7 @@ function! codequery#run_codequery(args) abort
             call s:restore_cwd()
             return
         endif
-
-"		let dbs = split(g:codequery_db_path)
-"		for db in dbs
-"			let g:codequery_db_path = db
-			call codequery#query#do_query(word)
-"		endfor
+		call codequery#query#do_query(word)
     else
         echom 'Wrong Subcommand !'
     endif

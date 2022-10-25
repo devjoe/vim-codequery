@@ -29,9 +29,6 @@ function! s:create_grep_options(word) abort
 
     let grepformat = '%f:%l%m'
 
-"    let grepprg = 'cqsearch -s ' . g:codequery_db_path . ' -p ' . g:codequery_querytype . ' -t '
-"                \ . word . ' -u ' . fuzzy_option . pipeline_script_option
-
     let grepformat = '%f:%l%m'
 
 	let grepprg = ''
@@ -44,15 +41,12 @@ function! s:create_grep_options(word) abort
 	let last_sub_grepprg = pipeline_script_option
 
     if g:codequery_querytype == s:subcmd_map['FileImporter']
-"        let grepprg = 'cqsearch -s ' . g:codequery_db_path . ' -p ' . g:codequery_querytype . ' -t '
-"                    \ . word . ' -u ' . fuzzy_option
+
 		let last_sub_grepprg = ''
+
     elseif g:codequery_querytype == s:subcmd_map['Callee'] ||
          \ g:codequery_querytype == s:subcmd_map['Caller'] ||
          \ g:codequery_querytype == s:subcmd_map['Member']
-
-"        let grepprg = 'cqsearch -s ' . g:codequery_db_path . ' -p ' . g:codequery_querytype . ' -t '
-"            \ . word . ' -u ' . fuzzy_option . ' \| awk ''{ print $2 " " $1 }'''
 
 		let last_sub_grepprg = ' \| awk ''{ print $2 " " $1 }'''
 
